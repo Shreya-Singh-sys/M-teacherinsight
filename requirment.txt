@@ -1,0 +1,8 @@
+openai-whisper
+google-generativeai
+python-dotenv
+numpy
+torch
+librosa
+scipy
+pyannote.audio
