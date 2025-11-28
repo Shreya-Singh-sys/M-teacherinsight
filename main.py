@@ -1,118 +1,122 @@
 import os
+import shutil
 import json
-import subprocess
+import numpy as np  # Added to handle the scientific numbers
+from fastapi import FastAPI, UploadFile, File
+from fastapi.middleware.cors import CORSMiddleware
 from pathlib import Path
+
+# Import your existing analyzers
 from stream1_content import ContentAnalyzer
 from stream2_vocal import VocalAnalyzer
 from stream3_interaction import InteractionAnalyzer
 from stream4_video import VideoAnalyzer
 
+app = FastAPI()
+
+# Enable CORS
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["*"],
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
+
 INPUT_DIR = Path("input")
 INPUT_DIR.mkdir(exist_ok=True)
 
-def ensure_wav(audio_path: Path) -> Path:
+print("🚀 Initializing AI Engines...")
+content_engine = ContentAnalyzer()
+vocal_engine = VocalAnalyzer()
+interaction_engine = InteractionAnalyzer()
+video_engine = VideoAnalyzer()
+
+def ensure_wav(audio_path):
+    path_obj = Path(audio_path)
+    wav_path = path_obj.with_suffix(".wav")
+    if not wav_path.exists():
+        print(f"Converting to WAV: {wav_path}")
+        os.system(f'ffmpeg -y -i "{audio_path}" -ac 1 -ar 16000 "{wav_path}" -loglevel quiet')
+    return str(wav_path)
+
+# --- THE MAGIC FIX FUNCTION ---
+def clean_data(obj):
     """
-    If input is mp3, try to convert to wav using ffmpeg.
-    If conversion fails, return the original path and let vocal analyzer decide.
+    Recursively converts 'Scientific Numbers' (NumPy) into 
+    standard Python numbers so the Web Server doesn't crash.
     """
-    audio_path = Path(audio_path)
-    if not audio_path.exists():
-        raise FileNotFoundError(f"Audio file not found: {audio_path}")
-
-    if audio_path.suffix.lower() in [".wav"]:
-        return audio_path
-
-    # try to convert mp3 -> wav
-    wav_path = audio_path.with_suffix(".wav")
-    try:
-        cmd = ["ffmpeg", "-y", "-i", str(audio_path), str(wav_path)]
-        subprocess.run(cmd, check=True, stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
-        print(f"✅ Converted {audio_path.name} -> {wav_path.name}")
-        return wav_path
-    except Exception:
-        print("⚠️ ffmpeg conversion failed or not installed. Proceeding with original file.")
-        return audio_path
-
-def safe_json_load(s):
-    try:
-        return json.loads(s) if isinstance(s, str) else (s or {})
-    except Exception:
-        return {}
-
-def main():
-    print("\n🚀 INITIALIZING TIE ENGINE\n")
-
-    # Files (change names as required)
-    audio_file = INPUT_DIR / "convo.mp3"   # your source file
-    video_file = INPUT_DIR / "convo.mp4"   # your video file (must be a video)
-
-    # Ensure audio is WAV if possible
-    try:
-        audio_for_analysis = ensure_wav(audio_file)
-    except FileNotFoundError as e:
-        print(e)
-        return
-
-    # Initialize analyzers
-    content = ContentAnalyzer()
-    vocal = VocalAnalyzer()
-    interaction = InteractionAnalyzer()
-    video = VideoAnalyzer()
-
-    # 1) Content (Whisper + Gemini)
-    print("\n[1/4] 📘 Content Analysis")
-    try:
-        transcript = content.transcribe_audio(str(audio_for_analysis))
-    except Exception as e:
-        print("Content analysis error:", e)
-        transcript = ""
-    print(transcript)
-
-    clarity_raw = "{}"
-    try:
-        clarity_raw = content.analyze_clarity(transcript)
-    except Exception as e:
-        print("Content clarity error:", e)
-
-    clarity = safe_json_load(clarity_raw)
-
-    # 2) Vocal (Librosa)
-    print("\n[2/4] 🎧 Vocal Analysis")
-    try:
-        vocal_data = vocal.analyze_audio(str(audio_for_analysis))
-    except Exception as e:
-        print("Vocal analysis error:", e)
-        vocal_data = {"error": "vocal analysis failed"}
-    print("\n[3/4] 🗣️ Interaction Analysis")
-    try:
-        interaction_data = interaction.analyze_interaction(str(audio_for_analysis))
-    except Exception as e:
-        print("Interaction analysis error:", e)
-        interaction_data = {"error": "interaction analysis failed"}
-
-    # 4) Video (MediaPipe)
-    print("\n[4/4] 📷 Video Analysis")
-    if Path(video_file).exists():
-        try:
-            video_data = video.analyze_video(str(video_file))
-        except Exception as e:
-            print("Video analysis error:", e)
-            video_data = {"error": "video analysis failed"}
+    if isinstance(obj, dict):
+        return {k: clean_data(v) for k, v in obj.items()}
+    elif isinstance(obj, list):
+        return [clean_data(i) for i in obj]
+    elif isinstance(obj, (np.int64, np.int32, np.integer)):
+        return int(obj)
+    elif isinstance(obj, (np.float64, np.float32, np.floating)):
+        return float(obj)
+    elif isinstance(obj, np.ndarray):
+        return clean_data(obj.tolist())
     else:
-        print("No video file found. Skipping video analysis.")
-        video_data = {}
+        return obj
+# -----------------------------
 
-    # Final combined report
-    print("\n\n===== 🟩 FINAL TEACHER PERFORMANCE REPORT =====")
-    print(f"Clarity Score: {clarity.get('clarity_score', 'N/A')}")
-    print(f"Clarity Feedback: {clarity.get('feedback', 'N/A')}")
-    print(f"Vocal Delivery: {vocal_data.get('delivery_status', vocal_data.get('error', 'N/A'))}")
-    print(f"Vocal Avg Pitch: {vocal_data.get('avg_pitch', 'N/A')}")
-    print(f"Student Interaction %: {interaction_data.get('interaction_ratio_percent', interaction_data.get('error', 'N/A'))}")
-    print(f"Class Mode: {interaction_data.get('class_mode', 'N/A')}")
-    print(f"Eye Contact Score: {video_data.get('eye_contact_score', 'N/A')}")
-    print(f"Gesture Energy Score: {video_data.get('gesture_energy_score', 'N/A')}")
-    print("\nEvaluation Complete.\n")
+@app.post("/analyze")
+async def analyze_video(file: UploadFile = File(...)):
+    print(f"\n📥 Received file: {file.filename}")
+    
+    save_path = INPUT_DIR / file.filename
+    with open(save_path, "wb") as buffer:
+        shutil.copyfileobj(file.file, buffer)
+    
+    video_path = str(save_path)
+    audio_path = ensure_wav(video_path)
 
-if __name__ == "__main__":
-    main()
+    results = {}
+
+    # Stream 1
+    try:
+        transcript = content_engine.transcribe_audio(audio_path)
+        clarity_data = content_engine.analyze_clarity(transcript)
+        if isinstance(clarity_data, str):
+            # Try to parse string JSON, handle if it's messy
+            try:
+                results["clarity"] = json.loads(clarity_data)
+            except:
+                results["clarity"] = {"feedback": clarity_data, "clarity_score": 70}
+        else:
+            results["clarity"] = clarity_data
+    except Exception as e:
+        print(f"Stream 1 Error: {e}")
+        results["clarity"] = {"error": str(e)}
+
+    # Stream 2
+    try:
+        results["vocal"] = vocal_engine.analyze_audio(audio_path)
+    except Exception as e:
+        print(f"Stream 2 Error: {e}")
+        results["vocal"] = {"error": str(e)}
+
+    # Stream 3
+    try:
+        results["interaction"] = interaction_engine.analyze_interaction(audio_path)
+    except Exception as e:
+        print(f"Stream 3 Error: {e}")
+        results["interaction"] = {"error": str(e)}
+
+    # Stream 4
+    try:
+        results["video"] = video_engine.analyze_video(video_path)
+    except Exception as e:
+        print(f"Stream 4 Error: {e}")
+        results["video"] = {"error": str(e)}
+
+    print("✅ Analysis Complete. Cleaning Data & Sending...")
+    
+    # Use the cleaner function before returning
+    safe_results = clean_data(results)
+    
+    return safe_results
+
+@app.get("/")
+def home():
+    return {"message": "TIE Backend is Running!"}
