@@ -5,9 +5,7 @@ class InteractionAnalyzer:
 
     def __init__(self):
         print("\n🟣 Initializing Interaction Engine...")
-
-        # --- PASTE YOUR TOKEN BELOW ---
-        hf_token = "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" # Paste your full token inside these quotes
+        hf_token = "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" 
 
         if not hf_token:
             print("❌ ERROR: No HuggingFace token found")
@@ -15,7 +13,6 @@ class InteractionAnalyzer:
             return
 
         try:
-            # --- FIX: Changed 'use_auth_token' to 'token' ---
             self.pipeline = Pipeline.from_pretrained(
                 "pyannote/speaker-diarization-3.1",
                 use_auth_token=hf_token 
@@ -33,7 +30,6 @@ class InteractionAnalyzer:
         try:
             diarization = self.pipeline(audio_path)
         except Exception as e:
-            # If it fails here, it usually means the Terms of Service weren't accepted
             return {"error": f"Pyannote failed: {e}"}
 
         speaker_segments = list(diarization.itertracks(yield_label=True))
