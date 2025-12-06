@@ -53,3 +53,4 @@ class VocalAnalyzer:
             "tempo_bpm": tempo,
             "delivery_status": delivery
         }
+

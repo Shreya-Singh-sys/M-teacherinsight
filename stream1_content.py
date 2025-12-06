@@ -7,7 +7,7 @@ class ContentAnalyzer:
     
     def __init__(self):
         print("\n📄 Initializing Content Engine (Whisper + Gemini)...")
-        self.whisper_model = whisper.load_model("base")
+        self.whisper_model = whisper.load_model("tiny")
 
         # --- SECURITY NOTE: REPLACE WITH YOUR ACTUAL API KEY ---
         # Make sure you revoke the key visible in your screenshot and generate a new one!
@@ -37,10 +37,10 @@ class ContentAnalyzer:
         
         Return JSON with keys:
         - clarity_score (1-100)
-        - jargon_count
-        - filler_count
-        - sentiment
-        - feedback
+        - jargon_count (Count of complex or unnecessary industry-specific words)
+        - filler_count (Count of verbal fillers like 'um', 'uh', 'you know')
+        - sentiment (Overall teaching tone: e.g., 'Positive', 'Neutral', 'Critical')
+        - feedback (Specific, concise advice based on scores and transcript)
         """
 
         try:
