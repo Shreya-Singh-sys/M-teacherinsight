@@ -9,7 +9,7 @@ from pathlib import Path
 from pydantic import BaseModel
 from fusion_engine import FusionEngine 
 from fastapi.responses import FileResponse # <--- NEW IMPORT
-from pdf_engine import ReportGenerator # <--- NEW IMPORT
+from pdf_engine import PDFGenerator # <--- NEW IMPORT
 
 # Import your analyzers
 from stream1_content import ContentAnalyzer
@@ -40,7 +40,7 @@ video_engine = VideoAnalyzer()
 coach_engine = CoachEngine()
 # ... inside Initializing AI Engines ...
 fusion_engine = FusionEngine() 
-pdf_engine = ReportGenerator() # <--- NEW INIT        # <--- NEW INIT
+pdf_engine = PDFGenerator() # <--- NEW INIT        # <--- NEW INIT
 
 # --- Data Models ---
 class CoachRequest(BaseModel):

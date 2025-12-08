@@ -1,95 +1,92 @@
-from fpdf import FPDF
-import datetime
+from reportlab.lib.pagesizes import letter
+from reportlab.lib import colors
+from reportlab.lib.styles import getSampleStyleSheet, ParagraphStyle
+from reportlab.platypus import SimpleDocTemplate, Paragraph, Spacer, Table, TableStyle
+from reportlab.lib.units import inch
+from datetime import datetime
 
-class PDFReport(FPDF):
-    def header(self):
-        # Logo or Title
-        self.set_font('Arial', 'B', 16)
-        self.set_text_color(79, 70, 229) # Indigo Color
-        self.cell(0, 10, 'TIE - Teacher Insight Engine', 0, 1, 'C')
-        self.ln(5)
+class PDFGenerator:
+    def __init__(self):
+        print("📄 Initializing PDF Engine...")
 
-    def footer(self):
-        self.set_y(-15)
-        self.set_font('Arial', 'I', 8)
-        self.set_text_color(128, 128, 128)
-        self.cell(0, 10, f'Page {self.page_no()}', 0, 0, 'C')
+    def generate_report(self, data, filename="TIE_Report.pdf"):
+        try:
+            doc = SimpleDocTemplate(filename, pagesize=letter)
+            story = []
+            styles = getSampleStyleSheet()
 
-class ReportGenerator:
-    def generate_pdf(self, data, filename="TIE_Report.pdf"):
-        pdf = PDFReport()
-        pdf.add_page()
-        pdf.set_auto_page_break(auto=True, margin=15)
+            # --- HEADER ---
+            title_style = styles['Title']
+            title_style.textColor = colors.HexColor("#4f46e5")
+            story.append(Paragraph("TIE: Teacher Insight Engine Report", title_style))
+            story.append(Spacer(1, 0.2 * inch))
 
-        # --- 1. SESSION INFO ---
-        pdf.set_font("Arial", 'B', 12)
-        pdf.set_text_color(0, 0, 0)
-        pdf.cell(0, 10, f"Session Analysis Report", 0, 1)
-        
-        pdf.set_font("Arial", '', 10)
-        pdf.cell(0, 6, f"Date: {datetime.date.today()}", 0, 1)
-        pdf.cell(0, 6, f"Overall Score: {data.get('overall_score', 'N/A')}/100", 0, 1)
-        pdf.ln(10)
-
-        # --- 2. KEY METRICS TABLE ---
-        # Header
-        pdf.set_fill_color(240, 240, 240)
-        pdf.set_font("Arial", 'B', 10)
-        pdf.cell(90, 8, "Metric", 1, 0, 'L', True)
-        pdf.cell(40, 8, "Score", 1, 0, 'C', True)
-        pdf.cell(60, 8, "Status", 1, 1, 'C', True)
-
-        # Data Rows
-        pdf.set_font("Arial", '', 10)
-        
-        # Helper to safely get data
-        def get_row(metric, score, status):
-            pdf.cell(90, 8, metric, 1)
-            pdf.cell(40, 8, str(score), 1, 0, 'C')
-            pdf.cell(60, 8, status, 1, 1, 'C')
-
-        # Extract values safely
-        clarity_score = data.get('clarity', {}).get('clarity_score', 0)
-        inter_score = data.get('interaction', {}).get('interaction_ratio_percent', 0)
-        eye_score = data.get('video', {}).get('eye_contact_score', 0)
-        vocal_hz = data.get('vocal', {}).get('avg_pitch', 0)
-
-        get_row("Content Clarity", f"{clarity_score}%", "Excellent" if clarity_score > 75 else "Needs Work")
-        get_row("Student Interaction", f"{inter_score}%", "Interactive" if inter_score > 20 else "Low")
-        get_row("Visual Eye Contact", f"{eye_score}%", "Good" if eye_score > 50 else "Poor")
-        get_row("Vocal Pitch (Avg)", f"{int(vocal_hz)} Hz", data.get('vocal', {}).get('delivery_status', 'Normal'))
-        
-        pdf.ln(10)
-
-        # --- 3. DETAILED AI FEEDBACK ---
-        pdf.set_font("Arial", 'B', 12)
-        pdf.cell(0, 10, "Detailed AI Insights", 0, 1)
-        
-        pdf.set_font("Arial", '', 10)
-        # Content Feedback
-        feedback_text = data.get('clarity', {}).get('feedback', 'No detailed feedback available.')
-        # Clean up text (FPDF doesn't support some unicode characters)
-        feedback_text = feedback_text.encode('latin-1', 'replace').decode('latin-1')
-        
-        pdf.set_text_color(100, 100, 100)
-        pdf.multi_cell(0, 6, f"AI Feedback: {feedback_text}")
-        
-        # --- 4. ACTION PLAN ---
-        pdf.ln(5)
-        pdf.set_font("Arial", 'B', 10)
-        pdf.set_text_color(0, 0, 0)
-        pdf.cell(0, 8, "Recommended Action Plan:", 0, 1)
-        pdf.set_font("Arial", 'I', 10)
-        
-        if clarity_score < 60:
-            plan = "- Review key terms before class to reduce jargon usage."
-        elif inter_score < 10:
-            plan = "- Incorporate a Q&A session every 15 minutes."
-        else:
-            plan = "- Maintain current teaching pace and style."
+            # --- METADATA ---
+            date_str = datetime.now().strftime("%b %d, %Y - %H:%M %p")
+            overall = str(data.get("overall_score", "0"))
             
-        pdf.multi_cell(0, 6, plan)
+            meta_data = [
+                ["Session Date:", date_str],
+                ["Overall Score:", f"{overall}/100"],
+                ["Performance Tier:", self._get_tier(int(overall) if overall.isdigit() else 0)]
+            ]
+            
+            meta_table = Table(meta_data, colWidths=[2*inch, 4*inch])
+            meta_table.setStyle(TableStyle([
+                ('FONTNAME', (0,0), (-1,-1), 'Helvetica-Bold'),
+                ('TEXTCOLOR', (0,0), (0,-1), colors.HexColor("#334155")),
+                ('BOTTOMPADDING', (0,0), (-1,-1), 12),
+            ]))
+            story.append(meta_table)
+            story.append(Spacer(1, 0.3 * inch))
 
-        # Output
-        pdf.output(filename)
-        return filename
+            # --- METRICS ---
+            story.append(Paragraph("Detailed Metrics", styles['Heading2']))
+            
+            clarity = str(data.get("clarity", {}).get("clarity_score", "0"))
+            interaction = str(data.get("interaction", {}).get("interaction_ratio_percent", "0"))
+            vocal = str(data.get("vocal", {}).get("avg_pitch", "0"))
+            eye = str(data.get("video", {}).get("eye_contact_score", "0"))
+            
+            metrics_data = [
+                ['Metric', 'Score', 'Status'],
+                ['Content Clarity', f"{clarity}%", self._get_status(clarity)],
+                ['Interaction Ratio', f"{interaction}%", "Active" if float(interaction) > 20 else "Low"],
+                ['Visual Engagement', f"{eye}%", "Good" if float(eye) > 50 else "Needs Focus"],
+                ['Vocal Pitch', f"{int(float(vocal))} Hz", data.get("vocal", {}).get("delivery_status", "Normal")]
+            ]
+
+            metric_table = Table(metrics_data, colWidths=[2.5*inch, 1.5*inch, 2.5*inch])
+            metric_table.setStyle(TableStyle([
+                ('BACKGROUND', (0,0), (-1,0), colors.HexColor("#e0e7ff")),
+                ('TEXTCOLOR', (0,0), (-1,0), colors.HexColor("#3730a3")),
+                ('ALIGN', (0,0), (-1,-1), 'LEFT'),
+                ('FONTNAME', (0,0), (-1,0), 'Helvetica-Bold'),
+                ('GRID', (0,0), (-1,-1), 1, colors.HexColor("#e2e8f0")),
+                ('BOTTOMPADDING', (0,0), (-1,0), 12),
+            ]))
+            story.append(metric_table)
+            
+            # --- FEEDBACK ---
+            story.append(Spacer(1, 0.3 * inch))
+            story.append(Paragraph("AI Neural Feedback", styles['Heading2']))
+            feedback = data.get("clarity", {}).get("feedback", "No specific feedback generated.")
+            story.append(Paragraph(f"<b>Analysis:</b> {feedback}", styles['Normal']))
+
+            doc.build(story)
+            print("✅ PDF Generated Successfully!")
+            
+        except Exception as e:
+            print(f"❌ PDF Engine Error: {e}")
+            raise e
+
+    def _get_tier(self, score):
+        if score >= 80: return "Excellent"
+        if score >= 60: return "Good Progress"
+        return "Needs Optimization"
+
+    def _get_status(self, score):
+        try:
+            return "Strong" if float(score) > 75 else "Average"
+        except:
+            return "N/A"
