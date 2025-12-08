@@ -1,60 +1,83 @@
-import os
 import whisper
-import google.generativeai as genai
-import json
+import re
+import numpy as np
 
 class ContentAnalyzer:
-    
+    # ---------------------------------------------------------
+    # FIX: Changed _init_ to __init__ (Double Underscores)
+    # ---------------------------------------------------------
     def __init__(self):
-        print("\n📄 Initializing Content Engine (Whisper + Gemini)...")
-        self.whisper_model = whisper.load_model("tiny")
+        print("✅ Local Clarity Engine Loaded (Whisper Only)")
+        # This now runs automatically when you create the object
+        self.model = whisper.load_model("base")
 
-        api_key = "AIzaSyCsOXRO5W5zwJX86zAmsncw7LVF5K4MO1w" 
-        
-        genai.configure(api_key=api_key)
-        self.gemini_model = genai.GenerativeModel("gemini-2.0-flash") 
-
+    # ---------- STEP 1: SPEECH TO TEXT ----------
     def transcribe_audio(self, audio_path):
-        print(f"\n🎤 Transcribing audio: {audio_path}")
+        print(f"🎤 Transcribing audio locally: {audio_path}")
+        # self.model now exists, so this won't crash
+        result = self.model.transcribe(audio_path)
+        transcript = result["text"]
+        print("✅ Transcription Complete")
+        return transcript
+
+    # ---------- STEP 2: LOCAL CLARITY ANALYSIS ----------
+    def analyze_clarity(self, transcript):
+        print("🧠 Running Local Clarity Analysis (No Gemini)...")
+
+        words = transcript.split()
+        total_words = len(words)
+
+        # Filler word detection
+        filler_words = ["um", "uh", "like", "you know", "so", "actually", "basically"]
         
-        if not os.path.exists(audio_path):
-            return "ERROR: Audio file not found."
-        result = self.whisper_model.transcribe(audio_path, language="en", task="transcribe")
-        return result["text"]
+        # Improved filler count to ensure we don't count "so" inside "also"
+        transcript_lower = transcript.lower()
+        filler_count = 0
+        for fw in filler_words:
+            # Using regex to match whole words only for accuracy
+            filler_count += len(re.findall(r'\b' + re.escape(fw) + r'\b', transcript_lower))
 
-    def analyze_clarity(self, transcript_text):
-        print("🧠 Sending transcript to Gemini...")
+        # Sentence count
+        sentences = re.split(r'[.!?]', transcript)
+        # Filter out empty strings from split result
+        sentences = [s for s in sentences if s.strip()]
+        sentence_count = max(len(sentences), 1)
 
-        prompt = f"""
-        You are an expert teacher evaluator.
-        
-        Analyze this classroom transcript and return ONLY a raw JSON object:
-        "{transcript_text}"
-        
-        Return JSON with keys:
-        - clarity_score (1-100)
-        - jargon_count (Count of complex or unnecessary industry-specific words)
-        - filler_count (Count of verbal fillers like 'um', 'uh', 'you know')
-        - sentiment (Overall teaching tone: e.g., 'Positive', 'Neutral', 'Critical')
-        - feedback (Specific, concise advice based on scores and transcript)
-        """
+        # Speech rate (words per sentence)
+        pace = total_words / sentence_count
 
-        try:
-            response = self.gemini_model.generate_content(prompt)
-            raw_text = response.text
-            
-            if "```" in raw_text:
-                raw_text = raw_text.replace("```json", "").replace("```", "").strip()
-            
-            return raw_text
+        # ---- CLARITY SCORING LOGIC ----
+        clarity_score = 100
 
-        except Exception as e:
-            print("Gemini ERROR:", e)
-            # Fallback JSON if API fails
-            return json.dumps({
-                "clarity_score": 0,
-                "jargon_count": 0,
-                "filler_count": 0,
-                "sentiment": "Neutral",
-                "feedback": "AI failed to grade transcript."
-            })
+        if filler_count > 8:
+            clarity_score -= 20
+        elif filler_count > 4:
+            clarity_score -= 10
+
+        if pace < 6:
+            clarity_score -= 10
+        elif pace > 20:
+            clarity_score -= 10
+
+        clarity_score = max(40, min(clarity_score, 100))
+
+        feedback = []
+        if clarity_score > 85:
+            feedback.append("Excellent clarity and smooth explanation.")
+        elif clarity_score > 70:
+            feedback.append("Good clarity with minor improvements possible.")
+        elif clarity_score > 55:
+            feedback.append("Average clarity. Try reducing filler words and improve pace.")
+        else:
+            feedback.append("Low clarity. Improve pacing and articulation.")
+
+        response = {
+            "clarity_score": int(clarity_score),
+            "feedback": " ".join(feedback),
+            "total_words": total_words,
+            "filler_words": filler_count,
+            "pace": round(pace, 2)
+        }
+
+        print("✅ Local Clarity Analysis Completed")
+        return response

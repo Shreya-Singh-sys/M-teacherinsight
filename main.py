@@ -1,11 +1,15 @@
 import os
 import shutil
 import json
+import asyncio
 import numpy as np
 from fastapi import FastAPI, UploadFile, File
 from fastapi.middleware.cors import CORSMiddleware
 from pathlib import Path
-from pydantic import BaseModel  # <--- NEW IMPORT
+from pydantic import BaseModel
+from fusion_engine import FusionEngine 
+from fastapi.responses import FileResponse # <--- NEW IMPORT
+from pdf_engine import ReportGenerator # <--- NEW IMPORT
 
 # Import your analyzers
 from stream1_content import ContentAnalyzer
@@ -13,11 +17,10 @@ from stream2_vocal import VocalAnalyzer
 from stream3_interaction import InteractionAnalyzer
 from stream4_video import VideoAnalyzer
 from coach_engine import CoachEngine
-import asyncio  # <--- NEW IMPORT
 
 app = FastAPI()
 
-# Enable CORS
+# Enable CORS (Allows Frontend to talk to Backend)
 app.add_middleware(
     CORSMiddleware,
     allow_origins=["*"],
@@ -34,10 +37,13 @@ content_engine = ContentAnalyzer()
 vocal_engine = VocalAnalyzer()
 interaction_engine = InteractionAnalyzer()
 video_engine = VideoAnalyzer()
-coach_engine = CoachEngine()  # <--- NEW INITIALIZATION
+coach_engine = CoachEngine()
+# ... inside Initializing AI Engines ...
+fusion_engine = FusionEngine() 
+pdf_engine = ReportGenerator() # <--- NEW INIT        # <--- NEW INIT
 
-# --- Data Model for Coaching ---
-class CoachRequest(BaseModel):  # <--- NEW CLASS
+# --- Data Models ---
+class CoachRequest(BaseModel):
     analysis_data: dict
     user_query: str
 
@@ -65,9 +71,9 @@ def clean_data(obj):
 
 @app.post("/analyze")
 async def analyze_video(file: UploadFile = File(...)):
-    # ... (Your existing analyze code remains exactly the same) ...
     print(f"\n📥 Received file: {file.filename}")
     
+    # Save File
     save_path = INPUT_DIR / file.filename
     with open(save_path, "wb") as buffer:
         shutil.copyfileobj(file.file, buffer)
@@ -75,83 +81,77 @@ async def analyze_video(file: UploadFile = File(...)):
     video_path = str(save_path)
     audio_path = ensure_wav(video_path)
 
-    results = {}
+    print("🚀 Starting PARALLEL Analysis...")
 
-    # Stream 1
-    try:
-        transcript = content_engine.transcribe_audio(audio_path)
-        clarity_data = content_engine.analyze_clarity(transcript)
-        if isinstance(clarity_data, str):
-            try:
-                results["clarity"] = json.loads(clarity_data)
-            except:
-                results["clarity"] = {"feedback": clarity_data, "clarity_score": 70}
-        else:
-            results["clarity"] = clarity_data
-    except Exception as e:
-        print(f"Stream 1 Error: {e}")
-        results["clarity"] = {"error": str(e)}
+    # Run AI Tasks
+    task_transcript = asyncio.to_thread(content_engine.transcribe_audio, audio_path)
+    task_vocal = asyncio.to_thread(vocal_engine.analyze_audio, audio_path)
+    task_interaction = asyncio.to_thread(interaction_engine.analyze_interaction, audio_path)
+    task_video = asyncio.to_thread(video_engine.analyze_video, video_path)
 
-    # Stream 2
-    try:
-        results["vocal"] = vocal_engine.analyze_audio(audio_path)
-    except Exception as e:
-        print(f"Stream 2 Error: {e}")
-        results["vocal"] = {"error": str(e)}
-
-    # Stream 3
-    try:
-        results["interaction"] = interaction_engine.analyze_interaction(audio_path)
-    except Exception as e:
-        print(f"Stream 3 Error: {e}")
-        results["interaction"] = {"error": str(e)}
-
-    # Stream 4
-    try:
-        results["video"] = video_engine.analyze_video(video_path)
-    except Exception as e:
-        print(f"Stream 4 Error: {e}")
-        results["video"] = {"error": str(e)}
-
-    print("✅ Analysis Complete. Cleaning Data & Sending...")
-    safe_results = clean_data(results)
-    return safe_results
-
+    transcript, vocal_res, interaction_res, video_res = await asyncio.gather(
+        task_transcript, task_vocal, task_interaction, task_video
+    )
     
-    # Run Clarity Analysis (Must happen after transcript is done)
-    # This is fast so we can run it normally
+    # Run Clarity
     try:
         clarity_data = content_engine.analyze_clarity(transcript)
         if isinstance(clarity_data, str):
             try:
                 clarity_res = json.loads(clarity_data)
             except:
-                clarity_res = {"feedback": clarity_data, "clarity_score": 70}
+                clarity_res = {"feedback": clarity_data, "clarity_score": 75}
         else:
             clarity_res = clarity_data
     except Exception as e:
-        clarity_res = {"error": str(e)}
+        clarity_res = {"error": str(e), "clarity_score": 0}
 
-    # Consolidate Results
-    results = {
+    # Consolidate Stream Results
+    raw_results = {
         "clarity": clarity_res,
         "vocal": vocal_res,
         "interaction": interaction_res,
         "video": video_res
     }
 
-    print("✅ Analysis Complete. Cleaning Data & Sending...")
-    safe_results = clean_data(results)
-    return safe_results
-# --- NEW ENDPOINT FOR COACHING ---
+    # --- NEW: CALCULATE OVERALL SCORE ---
+    overall_score = fusion_engine.calculate_overall(raw_results)
+
+    # Add score to final response
+    final_output = {
+        **raw_results,
+        "overall_score": overall_score 
+    }
+
+    print(f"✅ Analysis Complete. Overall Score: {overall_score}/100")
+    return clean_data(final_output)
+
 @app.post("/coach")
 async def ask_coach(request: CoachRequest):
-    print(f"\n🤖 Coach Query Received: {request.user_query}")
+    print(f"\n🤖 Coach Query: {request.user_query}")
     advice = coach_engine.provide_coaching(
         request.analysis_data, 
         request.user_query
     )
     return {"reply": advice}
+# --- PDF GENERATION ENDPOINT ---
+@app.post("/generate_pdf")
+async def generate_pdf(request: dict):
+    print("📄 Generating PDF Report...")
+
+    # Create a unique filename
+    filename = "TIE_Report_Session.pdf"
+    file_path = INPUT_DIR / filename
+
+    # Generate PDF using the engine
+    pdf_engine.generate_report(request, str(file_path))
+
+    # Return as a downloadable file
+    return FileResponse(
+        path=file_path, 
+        filename=filename, 
+        media_type='application/pdf'
+    )
 
 @app.get("/")
 def home():
