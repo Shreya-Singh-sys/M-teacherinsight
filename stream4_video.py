@@ -2,6 +2,10 @@ import cv2
 import mediapipe as mp
 import numpy as np
 import time
+import subprocess
+import glob
+import os
+import shutil
 
 class VideoAnalyzer:
     def __init__(self):
@@ -41,8 +45,9 @@ class VideoAnalyzer:
         if fps == 0: fps = 30 # Fallback
         
         # SKIP LOGIC: Process only 1 frame every 1 second
-        frame_skip = int(fps) 
+        # frame_skip = int(fps*5) 
         frame_count = 0
+        frame_skip = 50
         
         while cap.isOpened():
             success, image = cap.read()
@@ -50,21 +55,17 @@ class VideoAnalyzer:
                 break
             
             frame_count += 1
-            
-            # --- THE SPEED TRICK ---
-            # If this is not the "1st second" frame, skip it immediately
             if frame_count % frame_skip != 0:
                 continue
-
-            # Resize image to low res (640x480) for faster AI processing
-            image = cv2.resize(image, (640, 480))
+            image = cv2.resize(image, (320, 240))
             
             total_analyzed_frames += 1
             
             # Convert BGR (OpenCV) to RGB (MediaPipe)
+            
             image.flags.writeable = False
             image_rgb = cv2.cvtColor(image, cv2.COLOR_BGR2RGB)
-            
+    
             # ... (Rest of your MediaPipe logic stays exactly the same) ...
             
             # --- 1. FACE ANALYSIS ---
@@ -112,3 +113,4 @@ class VideoAnalyzer:
             "body_feedback": body_feedback,
             "frames_analyzed": total_analyzed_frames
         }
+    

@@ -1,0 +1,197 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>TIE Hacks - Previous Sessions</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="p_session.css">
+</head>
+<body>
+
+    <div class="container">
+        <aside class="sidebar">
+            <div class="brand">
+                <div class="logo-box">
+                    <i class="fa-solid fa-book-open"></i>
+                </div>
+                <div class="brand-text">
+                    <h2>TIE Hacks</h2>
+                    <span>Teaching Insights</span>
+                </div>
+            </div>
+            <nav class="nav-menu">
+                <a href="../index.html" class="nav-item" onclick="switchTab('dashboard')">
+                    <i class="fa-solid fa-border-all"></i>
+                    <span>Dashboard</span>
+                </a>
+                <a href="performance.html" class="nav-item" id="nav-performance" onclick="switchTab('performance')">
+                    <i class="fa-solid fa-chart-line"></i>
+                    <span>Performance Overview</span></a>
+                <a href="p_session.html" class="nav-item active" id="nav-sessions" onclick="switchTab('sessions')">
+                    <i class="fa-regular fa-clock"></i>
+                    <span>Class Sessions</span>
+                </a>
+                <a href="#" class="nav-item" id="nav-ai-report" onclick="switchTab('ai-report')">
+                    <i class="fa-solid fa-wand-magic-sparkles"></i>
+                    <span>AI Report</span>
+                </a>
+                <a href="#" class="nav-item" onclick="switchTab('settings')">
+                    <i class="fa-solid fa-gear"></i>
+                    <span>Settings</span>
+                </a>
+            </nav>
+
+            <div class="logout-section">
+                <a href="#" class="nav-item logout">
+                    <i class="fa-solid fa-arrow-right-from-bracket"></i>
+                    <span>Log Out</span>
+                </a>
+            </div>
+        </aside>
+
+        <main class="main-content">
+            
+            <header class="page-header">
+                <div class="header-text">
+                    <h1>Previous Sessions</h1>
+                    <p>Review and compare your past teaching sessions</p>
+                </div>
+                <button class="btn-primary">
+                    <i class="fa-solid fa-download"></i> Download PDF Report
+                </button>
+            </header>
+
+            <div class="card card-delay-1">
+                <div class="card-header">
+                    <h3><i class="fa-solid fa-list-ul"></i> Session History</h3>
+                </div>
+                <div class="table-responsive">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th style="width: 50px;"><input type="checkbox"></th>
+                                <th>SESSION ID</th>
+                                <th>DATE</th>
+                                <th>SUBJECT</th>
+                                <th>CLARITY</th>
+                                <th>ENGAGEMENT</th>
+                                <th>DELIVERY</th>
+                                <th>OVERALL</th>
+                                <th>ACTION</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td><input type="checkbox"></td>
+                                <td class="session-id">#SESS-892</td>
+                                <td class="date-col"><i class="fa-regular fa-calendar"></i> Dec 06, 2025</td>
+                                <td><span class="subject-tag"><i class="fa-solid fa-book-open"></i> Adv. Math</span></td>
+                                <td class="font-bold">85%</td>
+                                <td class="font-bold">88%</td>
+                                <td class="font-bold">82%</td>
+                                <td><span class="badge badge-green">85/100</span></td>
+                                <td><a href="#" class="action-link"><i class="fa-solid fa-download"></i> Download</a></td>
+                            </tr>
+                            <tr>
+                                <td><input type="checkbox"></td>
+                                <td class="session-id">#SESS-891</td>
+                                <td class="date-col"><i class="fa-regular fa-calendar"></i> Dec 04, 2025</td>
+                                <td><span class="subject-tag"><i class="fa-solid fa-book-open"></i> Calculus I</span></td>
+                                <td class="font-bold">72%</td>
+                                <td class="font-bold">75%</td>
+                                <td class="font-bold">68%</td>
+                                <td><span class="badge badge-yellow">72/100</span></td>
+                                <td><a href="#" class="action-link"><i class="fa-solid fa-download"></i> Download</a></td>
+                            </tr>
+                            <tr>
+                                <td><input type="checkbox"></td>
+                                <td class="session-id">#SESS-890</td>
+                                <td class="date-col"><i class="fa-regular fa-calendar"></i> Dec 01, 2025</td>
+                                <td><span class="subject-tag"><i class="fa-solid fa-book-open"></i> Geometry</span></td>
+                                <td class="font-bold">88%</td>
+                                <td class="font-bold">90%</td>
+                                <td class="font-bold">86%</td>
+                                <td><span class="badge badge-green">88/100</span></td>
+                                <td><a href="#" class="action-link"><i class="fa-solid fa-download"></i> Download</a></td>
+                            </tr>
+                            <tr>
+                                <td><input type="checkbox"></td>
+                                <td class="session-id">#SESS-889</td>
+                                <td class="date-col"><i class="fa-regular fa-calendar"></i> Nov 28, 2025</td>
+                                <td><span class="subject-tag"><i class="fa-solid fa-book-open"></i> Algebra II</span></td>
+                                <td class="font-bold">80%</td>
+                                <td class="font-bold">82%</td>
+                                <td class="font-bold">78%</td>
+                                <td><span class="badge badge-yellow">80/100</span></td>
+                                <td><a href="#" class="action-link"><i class="fa-solid fa-download"></i> Download</a></td>
+                            </tr>
+                            <tr>
+                                <td><input type="checkbox"></td>
+                                <td class="session-id">#SESS-888</td>
+                                <td class="date-col"><i class="fa-regular fa-calendar"></i> Nov 25, 2025</td>
+                                <td><span class="subject-tag"><i class="fa-solid fa-book-open"></i> Trigonometry</span></td>
+                                <td class="font-bold">76%</td>
+                                <td class="font-bold">79%</td>
+                                <td class="font-bold">74%</td>
+                                <td><span class="badge badge-yellow">76/100</span></td>
+                                <td><a href="#" class="action-link"><i class="fa-solid fa-download"></i> Download</a></td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            <div class="card chart-card card-delay-2">
+                <div class="card-header">
+                    <h3><i class="fa-solid fa-arrow-trend-up"></i> Overall Progress Trend</h3>
+                </div>
+                
+                <div class="chart-container">
+                    <div class="y-axis">
+                        <span>100</span>
+                        <span>75</span>
+                        <span>50</span>
+                        <span>25</span>
+                        <span>0</span>
+                    </div>
+                    <div class="chart-area">
+                        <div class="grid-line" style="bottom: 0%"></div>
+                        <div class="grid-line" style="bottom: 25%"></div>
+                        <div class="grid-line" style="bottom: 50%"></div>
+                        <div class="grid-line" style="bottom: 75%"></div>
+                        <div class="grid-line" style="bottom: 100%"></div>
+
+                        <svg viewBox="0 0 1000 200" preserveAspectRatio="none" class="chart-svg">
+                            <defs>
+                                <linearGradient id="grad" x1="0%" y1="0%" x2="0%" y2="100%">
+                                    <stop offset="0%" style="stop-color:#4f46e5;stop-opacity:0.3" />
+                                    <stop offset="100%" style="stop-color:#4f46e5;stop-opacity:0" />
+                                </linearGradient>
+                            </defs>
+                            <path class="chart-fill-path" d="M0,150 L250,160 L500,100 L750,120 L1000,80 V200 H0 Z" fill="url(#grad)" />
+                            <path class="chart-line-path" d="M0,150 L250,160 L500,100 L750,120 L1000,80" fill="none" stroke="#4f46e5" stroke-width="4" stroke-linecap="round" stroke-linejoin="round" />
+                            
+                            <circle class="chart-dot dot-1" cx="0" cy="150" r="5" fill="#white" stroke="#4f46e5" stroke-width="3"/>
+                            <circle class="chart-dot dot-2" cx="250" cy="160" r="5" fill="#white" stroke="#4f46e5" stroke-width="3"/>
+                            <circle class="chart-dot dot-3" cx="500" cy="100" r="5" fill="#white" stroke="#4f46e5" stroke-width="3"/>
+                            <circle class="chart-dot dot-4" cx="750" cy="120" r="5" fill="#white" stroke="#4f46e5" stroke-width="3"/>
+                            <circle class="chart-dot dot-5" cx="1000" cy="80" r="5" fill="#white" stroke="#4f46e5" stroke-width="3"/>
+                        </svg>
+
+                        <div class="x-axis">
+                            <span>SESS-888</span>
+                            <span>SESS-889</span>
+                            <span>SESS-890</span>
+                            <span>SESS-891</span>
+                            <span>SESS-892</span>
+                            <span>Current</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+</body>
+</html>

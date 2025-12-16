@@ -1,28 +1,40 @@
 import whisper
 import re
 import numpy as np
+import os
+from pathlib import Path
 
 class ContentAnalyzer:
-    # ---------------------------------------------------------
-    # FIX: Changed _init_ to __init__ (Double Underscores)
-    # ---------------------------------------------------------
     def __init__(self):
         print("✅ Local Clarity Engine Loaded (Whisper Only)")
-        # This now runs automatically when you create the object
-        self.model = whisper.load_model("base")
-
-    # ---------- STEP 1: SPEECH TO TEXT ----------
+        # Load the base model
+        self.whisper_model = whisper.load_model("tiny.en")
     def transcribe_audio(self, audio_path):
-        print(f"🎤 Transcribing audio locally: {audio_path}")
-        # self.model now exists, so this won't crash
-        result = self.model.transcribe(audio_path)
-        transcript = result["text"]
-        print("✅ Transcription Complete")
-        return transcript
-
+        print(f"🎤 Transcribing....")
+        
+        # Load audio using Whisper's tool
+        audio = whisper.load_audio(audio_path)
+        
+        # HARD LIMIT: Crop audio to first 45 seconds
+        # 16000 Hz * 45 = 720,000 samples
+        audio = whisper.pad_or_trim(audio, length=16000 * 45)
+        
+        # Transcribe
+        result = self.whisper_model.transcribe(audio)
+        return result["text"]
     # ---------- STEP 2: LOCAL CLARITY ANALYSIS ----------
     def analyze_clarity(self, transcript):
         print("🧠 Running Local Clarity Analysis (No Gemini)...")
+
+        # 1. Handle Empty Transcript (Agar audio silent tha)
+        if not transcript or not transcript.strip():
+            return {
+                "clarity_score": 0,
+                "feedback": "No speech detected in the video.",
+                "total_words": 0,
+                "filler_words": 0,
+                "pace": 0
+            }
 
         words = transcript.split()
         total_words = len(words)
@@ -30,21 +42,23 @@ class ContentAnalyzer:
         # Filler word detection
         filler_words = ["um", "uh", "like", "you know", "so", "actually", "basically"]
         
-        # Improved filler count to ensure we don't count "so" inside "also"
         transcript_lower = transcript.lower()
         filler_count = 0
         for fw in filler_words:
-            # Using regex to match whole words only for accuracy
+            # Regex to match whole words only
             filler_count += len(re.findall(r'\b' + re.escape(fw) + r'\b', transcript_lower))
 
         # Sentence count
         sentences = re.split(r'[.!?]', transcript)
-        # Filter out empty strings from split result
         sentences = [s for s in sentences if s.strip()]
         sentence_count = max(len(sentences), 1)
 
         # Speech rate (words per sentence)
-        pace = total_words / sentence_count
+        # Avoid Division by Zero
+        if sentence_count > 0:
+            pace = total_words / sentence_count
+        else:
+            pace = 0
 
         # ---- CLARITY SCORING LOGIC ----
         clarity_score = 100
