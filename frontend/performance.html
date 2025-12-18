@@ -1,0 +1,736 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Performance Overview | TIE Hacks</title>
+    
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;800&family=DM+Sans:wght@400;500;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <script src="https://cdn.tailwindcss.com"></script>
+
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        navy: '#2B3674',
+                        primary: '#4318FF',
+                        lightbg: '#F4F7FE',
+                        graytext: '#A3AED0',
+                        success: '#05CD99',
+                        warning: '#FFB547',
+                    },
+                    fontFamily: {
+                        sans: ['DM Sans', 'sans-serif'],
+                        sidebar: ['Inter', 'sans-serif'],
+                    },
+                    boxShadow: {
+                        'card': '0px 18px 40px rgba(112, 144, 176, 0.12)',
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        .no-scrollbar::-webkit-scrollbar { display: none; }
+        .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
+    </style>
+</head>
+
+<body class="flex h-screen bg-lightbg text-navy font-sans overflow-hidden">
+
+    <aside class="w-72 bg-white shadow-xl flex flex-col p-6 z-50 border-r border-slate-200 font-medium h-full shrink-0 font-sidebar">
+        
+        <div class="flex items-center gap-3 mb-10">
+            <div class="w-10 h-10 rounded-lg bg-gradient-to-br from-indigo-600 to-sky-500 flex items-center justify-center text-white font-bold shadow-lg shadow-indigo-500/20">T</div>
+            <h1 class="text-xl font-extrabold text-slate-800 tracking-tight">TIE Hacks</h1>
+        </div>
+    
+        <nav class="flex flex-col gap-2 text-sm">
+            <a href="/" class="nav-item text-slate-500 px-4 py-3 rounded-r-xl hover:bg-indigo-50 hover:text-indigo-600 transition-all border-l-4 border-transparent hover:border-indigo-600">
+                Dashboard
+            </a>
+            
+            <a href="#" class="text-indigo-700 bg-indigo-50 px-4 py-3 rounded-r-xl border-l-4 border-indigo-600 shadow-sm font-semibold">
+                Performance Overview
+            </a>
+    
+            <a href="Session.html" class="nav-item text-slate-500 px-4 py-3 rounded-r-xl hover:bg-indigo-50 hover:text-indigo-600 transition-all border-l-4 border-transparent hover:border-indigo-600">
+                Class Sessions
+            </a>
+            <a href="#" class="nav-item text-slate-500 px-4 py-3 rounded-r-xl hover:bg-indigo-50 hover:text-indigo-600 transition-all border-l-4 border-transparent hover:border-indigo-600">
+                AI Reports
+            </a>
+            <a href="settings.html" class="nav-item text-slate-500 px-4 py-3 rounded-r-xl hover:bg-indigo-50 hover:text-indigo-600 transition-all border-l-4 border-transparent hover:border-indigo-600">
+                Settings
+            </a>
+        </nav>
+    
+        <div class="mt-auto">
+            <button class="w-full border-2 border-slate-200 text-slate-600 py-2.5 rounded-xl hover:bg-slate-50 hover:border-slate-300 transition text-sm font-bold">
+                Log Out
+            </button>
+        </div>
+    
+    </aside>
+
+
+    <div class="flex-1 h-full overflow-y-auto relative no-scrollbar">
+        <main class="p-8 lg:p-12 max-w-[1800px] mx-auto w-full">
+            
+            <header class="flex justify-between items-end mb-10">
+                <div>
+                    <p class="text-graytext text-base font-medium mb-1">Pages / Performance Overview</p>
+                    <h1 class="text-4xl font-bold text-navy tracking-tight leading-none">Performance Overview</h1>
+                </div>
+
+                <div class="flex items-center gap-4 bg-white p-3 rounded-full shadow-sm">
+                    <div class="hidden md:flex items-center gap-2 px-6 py-2 bg-lightbg rounded-full text-navy font-bold text-sm">
+                        <i class="fa-regular fa-calendar text-primary"></i> Dec 18, 2025
+                    </div>
+                    
+                    <button class="w-10 h-10 rounded-full text-graytext hover:text-navy hover:bg-lightbg transition flex items-center justify-center">
+                        <i class="fa-regular fa-bell text-2xl"></i>
+                    </button>
+
+                    <div class="w-11 h-11 rounded-full bg-navy text-white flex items-center justify-center font-bold shadow-md cursor-pointer text-sm">
+                        TA
+                    </div>
+                </div>
+            </header>
+
+
+            <section class="grid grid-cols-1 md:grid-cols-3 gap-8 mb-10">
+                <div class="bg-white rounded-[24px] p-6 shadow-card flex flex-col justify-between h-40">
+                    <div class="flex justify-between items-start">
+                        <div class="flex items-center gap-3">
+                            <div class="w-10 h-10 rounded-full bg-[#F4F1FF] text-[#6941C6] flex items-center justify-center">
+                                <i class="fa-solid fa-file-lines"></i>
+                            </div>
+                            <div>
+                                <p class="text-sm text-gray-500 font-medium">Clarity</p>
+                                <h1 class="text-3xl font-bold text-gray-800" id="mainClarity">--%</h1>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="w-full bg-gray-100 rounded-full h-2 mt-4">
+                        <div id="barClarity" class="bg-[#6941C6] h-2 rounded-full transition-all duration-1000" style="width: 0%"></div>
+                    </div>
+                </div>
+                <div class="bg-white rounded-[24px] p-6 shadow-card flex flex-col justify-between h-40">
+                    <div class="flex justify-between items-start">
+                        <div class="flex items-center gap-3">
+                            <div class="w-10 h-10 rounded-full bg-[#E6FBF5] text-[#00C48C] flex items-center justify-center">
+                                <i class="fa-solid fa-users-viewfinder"></i>
+                            </div>
+                            <div>
+                                <p class="text-sm text-gray-500 font-medium">Engagement</p>
+                                <h1 class="text-3xl font-bold text-gray-800" id="mainEngagement">--%</h1>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="w-full bg-gray-100 rounded-full h-2 mt-4">
+                        <div id="barEngagement" class="bg-[#00C48C] h-2 rounded-full transition-all duration-1000" style="width: 0%"></div>
+                    </div>
+                </div>
+                <div class="bg-white rounded-[24px] p-6 shadow-card flex flex-col justify-between h-40">
+                    <div class="flex justify-between items-start">
+                        <div class="flex items-center gap-3">
+                            <div class="w-10 h-10 rounded-full bg-[#FFF9EB] text-[#FFB020] flex items-center justify-center">
+                                <i class="fa-solid fa-chart-line"></i>
+                            </div>
+                            <div>
+                                <p class="text-sm text-gray-500 font-medium">Delivery</p>
+                                <h1 class="text-3xl font-bold text-gray-800" id="mainOverall">--%</h1>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="w-full bg-gray-100 rounded-full h-2 mt-4">
+                        <div id="barOverall" class="bg-[#FFB020] h-2 rounded-full transition-all duration-1000" style="width: 0%"></div>
+                    </div>
+                </div>
+            
+                <!-- <div class="bg-white rounded-[24px] p-8 shadow-card hover:-translate-y-1 transition duration-200 flex flex-col justify-center min-h-[180px]">
+                    <div class="flex items-start gap-5 mb-5">
+                        <div class="w-16 h-16 rounded-full bg-lightbg text-primary flex items-center justify-center text-2xl shrink-0">
+                            <i class="fa-solid fa-file-lines"></i>
+                        </div>
+                        <div>
+                            <p class="text-graytext text-base font-medium">Clarity</p>
+                            <h3 class="text-navy text-4xl font-bold" id="mainClarity">--%</h3>
+                        </div>
+                    </div>
+                    <div class="w-full bg-[#EFF4FB] h-3 rounded-full overflow-hidden">
+                        <div class="h-full bg-primary rounded-full" style="width: 78%"></div>
+                    </div>
+                </div>
+
+                <div class="bg-white rounded-[24px] p-8 shadow-card hover:-translate-y-1 transition duration-200 flex flex-col justify-center min-h-[180px]">
+                    <div class="flex items-start gap-5 mb-5">
+                        <div class="w-16 h-16 rounded-full bg-[#E6FBF5] text-success flex items-center justify-center text-2xl shrink-0">
+                            <i class="fa-solid fa-users-viewfinder"></i>
+                        </div>
+                        <div>
+                            <p class="text-graytext text-base font-medium">Engagement</p>
+                            <h3 class="text-navy text-4xl font-bold" id="mainEngagement">--%</h3>
+                        </div>
+                    </div>
+                    <div class="w-full bg-[#EFF4FB] h-3 rounded-full overflow-hidden">
+                        <div class="h-full bg-success rounded-full" style="width: 82%"></div>
+                    </div>
+                </div>
+
+                <div class="bg-white rounded-[24px] p-8 shadow-card hover:-translate-y-1 transition duration-200 flex flex-col justify-center min-h-[180px]">
+                    <div class="flex items-start gap-5 mb-5">
+                        <div class="w-16 h-16 rounded-full bg-[#FFF5E6] text-warning flex items-center justify-center text-2xl shrink-0">
+                            <i class="fa-solid fa-chart-line"></i>
+                        </div>
+                        <div>
+                            <p class="text-graytext text-base font-medium">Delivery</p>
+                            <h3 class="text-navy text-4xl font-bold" id="mainDelivery">--%</h3>
+                        </div>
+                    </div>
+                    <div class="w-full bg-[#EFF4FB] h-3 rounded-full overflow-hidden">
+                        <div class="h-full bg-warning rounded-full" style="width: 75%"></div>
+                    </div>
+                </div> -->
+            </section>
+
+
+            <section class="grid grid-cols-1 lg:grid-cols-2 gap-8 mb-10">
+                
+                <!-- <div class="bg-white rounded-[24px] p-8 shadow-card min-h-[380px] flex flex-col justify-between">
+                    <div class="flex items-center gap-4 mb-2">
+                        <div class="w-12 h-12 rounded-full bg-lightbg text-primary flex items-center justify-center text-xl">
+                            <i class="fa-solid fa-microphone-lines"></i>
+                        </div>
+                        <h3 class="text-2xl font-bold text-navy"><i class= "fa-solid fa-microphone mr-2"></i>Audio Analysis</h3>
+                    </div>
+
+                    <div class="flex flex-col gap-6">
+                        <div class="flex justify-between items-center border-b border-lightbg pb-4">
+                            <span class="text-graytext font-medium text-lg">Speech Rate</span>
+                            <div class="flex items-center gap-3 text-navy font-bold text-lg">
+                                145 WPM 
+                                <span class="bg-[#E6FBF5] text-success text-xs px-2.5 py-1 rounded font-bold uppercase tracking-wide">Good</span>
+                            </div>
+                        </div>
+                        <div class="flex justify-between items-center border-b border-lightbg pb-4">
+                            <span class="text-graytext font-medium text-lg">Pitch Variation</span>
+                            <div class="flex items-center gap-3 text-navy font-bold text-lg">
+                                78% 
+                                <span class="bg-lightbg text-primary text-xs px-2.5 py-1 rounded font-bold uppercase tracking-wide">Excellent</span>
+                            </div>
+                        </div>
+                        <div class="flex justify-between items-center border-b border-lightbg pb-4">
+                            <span class="text-graytext font-medium text-lg">Energy Level</span>
+                            <div class="flex items-center gap-3 text-navy font-bold text-lg">
+                                82% 
+                                <span class="bg-[#E6FBF5] text-success text-xs px-2.5 py-1 rounded font-bold uppercase tracking-wide">Good</span>
+                            </div>
+                        </div>
+                        <div class="flex justify-between items-center">
+                            <span class="text-graytext font-medium text-lg">Filler Words</span>
+                            <div class="flex items-center gap-3 text-navy font-bold text-lg">
+                                8 counts 
+                                <span class="bg-[#FFF5E6] text-warning text-xs px-2.5 py-1 rounded font-bold uppercase tracking-wide">Fix</span>
+                            </div>
+                        </div>
+                    </div>
+                </div> -->
+                <div class="bg-white rounded-[24px] p-8 shadow-card min-h-[380px] flex flex-col justify-between">
+                    <div class="flex items-center gap-4 mb-2">
+                        <div class="w-12 h-12 rounded-full bg-[#F4F1FF] text-[#6941C6] flex items-center justify-center text-xl">
+                            <i class="fa-solid fa-microphone-lines"></i>
+                        </div>
+                        <h3 class="text-2xl font-bold text-navy">Audio Analysis</h3>
+                    </div>
+                    <div class="flex flex-col gap-6">
+                        <div class="flex justify-between items-center border-b border-lightbg pb-4">
+                            <span class="text-graytext font-medium text-lg">Speech Rate</span>
+                            <div class="flex items-center gap-3 text-navy font-bold text-lg">
+                                <span id="audioWPM">-- WPM</span> <span id="wpmBadge" class="bg-[#E6FBF5] text-success text-xs px-2.5 py-1 rounded font-bold uppercase tracking-wide">--</span>
+                            </div>
+                        </div>
+                        <div class="flex justify-between items-center border-b border-lightbg pb-4">
+                            <span class="text-graytext font-medium text-lg">Pitch Avg</span>
+                            <div class="flex items-center gap-3 text-navy font-bold text-lg">
+                                <span id="audioPitch">-- Hz</span> <span class="bg-lightbg text-primary text-xs px-2.5 py-1 rounded font-bold uppercase tracking-wide">Info</span>
+                            </div>
+                        </div>
+                        <div class="flex justify-between items-center border-b border-lightbg pb-4">
+                            <span class="text-graytext font-medium text-lg">Vocal Status</span>
+                            <div class="flex items-center gap-3 text-navy font-bold text-lg">
+                                <span id="audioStatus">--</span> <span class="bg-[#E6FBF5] text-success text-xs px-2.5 py-1 rounded font-bold uppercase tracking-wide">Status</span>
+                            </div>
+                        </div>
+                        <div class="flex justify-between items-center">
+                            <span class="text-graytext font-medium text-lg">Filler Words</span>
+                            <div class="flex items-center gap-3 text-navy font-bold text-lg">
+                                <span>N/A</span>
+                                <span class="bg-lightbg text-graytext text-xs px-2.5 py-1 rounded font-bold uppercase tracking-wide">Future</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- <div class="bg-white rounded-[24px] p-8 shadow-card min-h-[380px] flex flex-col justify-between">
+                    <div class="flex items-center gap-4 mb-2">
+                        <div class="w-12 h-12 rounded-full bg-[#FFF5F9] text-[#FF5CAA] flex items-center justify-center text-xl">
+                            <i class="fa-solid fa-video"></i>
+                        </div>
+                        <h3 class="text-2xl font-bold text-navy">Video Analysis</h3>
+                    </div>
+
+                    <div class="flex flex-col gap-6">
+                        <div class="flex justify-between items-center border-b border-lightbg pb-4">
+                            <span class="text-graytext font-medium text-lg">Gesture Freq.</span>
+                            <div class="flex items-center gap-3 text-navy font-bold text-lg">
+                                24/min 
+                                <span class="bg-[#E6FBF5] text-success text-xs px-2.5 py-1 rounded font-bold uppercase tracking-wide">Good</span>
+                            </div>
+                        </div>
+                        <div class="flex justify-between items-center border-b border-lightbg pb-4">
+                            <span class="text-graytext font-medium text-lg">Eye Contact</span>
+                            <div class="flex items-center gap-3 text-navy font-bold text-lg">
+                                68% 
+                                <span class="bg-[#E6FBF5] text-success text-xs px-2.5 py-1 rounded font-bold uppercase tracking-wide">Good</span>
+                            </div>
+                        </div>
+                        <div class="flex justify-between items-center border-b border-lightbg pb-4">
+                            <span class="text-graytext font-medium text-lg">Head Stability</span>
+                            <div class="flex items-center gap-3 text-navy font-bold text-lg">
+                                85% 
+                                <span class="bg-lightbg text-primary text-xs px-2.5 py-1 rounded font-bold uppercase tracking-wide">Excellent</span>
+                            </div>
+                        </div>
+                        <div class="flex justify-between items-center">
+                            <span class="text-graytext font-medium text-lg">Posture</span>
+                            <div class="flex items-center gap-3 text-navy font-bold text-lg">
+                                88% 
+                                <span class="bg-lightbg text-primary text-xs px-2.5 py-1 rounded font-bold uppercase tracking-wide">Excellent</span>
+                            </div>
+                        </div>
+                    </div>
+                </div> -->
+                <div class="bg-white rounded-[24px] p-8 shadow-card min-h-[380px] flex flex-col justify-between">
+                    <div class="flex items-center gap-4 mb-2">
+                        <div class="w-12 h-12 rounded-full bg-[#FFF5F9] text-[#FF5CAA] flex items-center justify-center text-xl">
+                            <i class="fa-solid fa-video"></i>
+                        </div>
+                        <h3 class="text-2xl font-bold text-navy">Video Analysis</h3>
+                    </div>
+                    <div class="flex flex-col gap-6">
+                        <div class="flex justify-between items-center border-b border-lightbg pb-4">
+                            <span class="text-graytext font-medium text-lg">Gesture Energy</span>
+                            <div class="flex items-center gap-3 text-navy font-bold text-lg">
+                                <span id="videoEnergy">--</span> <span class="bg-[#E6FBF5] text-success text-xs px-2.5 py-1 rounded font-bold uppercase tracking-wide">Score</span>
+                            </div>
+                        </div>
+                        <div class="flex justify-between items-center border-b border-lightbg pb-4">
+                            <span class="text-graytext font-medium text-lg">Eye Contact</span>
+                            <div class="flex items-center gap-3 text-navy font-bold text-lg">
+                                <span id="videoEye">--%</span> <span class="bg-[#E6FBF5] text-success text-xs px-2.5 py-1 rounded font-bold uppercase tracking-wide">Good</span>
+                            </div>
+                        </div>
+                        <div class="flex justify-between items-center border-b border-lightbg pb-4">
+                            <span class="text-graytext font-medium text-lg">Interaction</span>
+                            <div class="flex items-center gap-3 text-navy font-bold text-lg">
+                                <span id="videoInteraction">--%</span> <span class="bg-lightbg text-primary text-xs px-2.5 py-1 rounded font-bold uppercase tracking-wide">Class</span>
+                            </div>
+                        </div>
+                        <div class="flex justify-between items-center">
+                            <span class="text-graytext font-medium text-lg">Posture</span>
+                            <div class="flex items-center gap-3 text-navy font-bold text-lg">
+                                <span>Good</span>
+                                <span class="bg-lightbg text-primary text-xs px-2.5 py-1 rounded font-bold uppercase tracking-wide">Excellent</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+
+            <section class="bg-white rounded-[24px] p-8 shadow-card mb-10">
+                <div class="bg-white rounded-[24px] p-8 shadow-card mt-8">
+                    <div class="flex items-center gap-4 mb-6">
+                        <div class="w-12 h-12 rounded-full bg-[#E6FBF5] text-[#00C48C] flex items-center justify-center text-xl">
+                            <i class="fa-solid fa-brain"></i>
+                        </div>
+                        <h3 class="text-2xl font-bold text-navy">Content Analysis</h3>
+                    </div>
+                    <div class="grid grid-cols-1 md:grid-cols-4 gap-6">
+                        <div class="bg-[#FAFAFA] rounded-2xl p-6 text-center hover:bg-white hover:shadow-md transition">
+                            <div class="w-12 h-12 mx-auto bg-[#F4F1FF] text-[#6941C6] rounded-full flex items-center justify-center mb-3">
+                                <i class="fa-solid fa-layer-group"></i>
+                            </div>
+                            <h1 class="text-3xl font-bold text-navy mb-1" id="contentCoverage">--%</h1> <p class="text-xs text-graytext font-bold uppercase tracking-wider">Topic Coverage</p>
+                        </div>
+                        <div class="bg-[#FAFAFA] rounded-2xl p-6 text-center hover:bg-white hover:shadow-md transition">
+                            <div class="w-12 h-12 mx-auto bg-[#FFF9EB] text-[#FFB020] rounded-full flex items-center justify-center mb-3">
+                                <i class="fa-solid fa-lightbulb"></i>
+                            </div>
+                            <h1 class="text-3xl font-bold text-navy mb-1" id="contentPoints">--</h1> <p class="text-xs text-graytext font-bold uppercase tracking-wider">Key Points</p>
+                        </div>
+                        <div class="bg-[#FAFAFA] rounded-2xl p-6 text-center hover:bg-white hover:shadow-md transition">
+                            <div class="w-12 h-12 mx-auto bg-[#E6FBF5] text-[#00C48C] rounded-full flex items-center justify-center mb-3">
+                                <i class="fa-solid fa-clipboard-question"></i>
+                            </div>
+                            <h1 class="text-3xl font-bold text-navy mb-1" id="contentQuestions">--</h1> <p class="text-xs text-graytext font-bold uppercase tracking-wider">Questions</p>
+                        </div>
+                        <div class="bg-[#FAFAFA] rounded-2xl p-6 text-center hover:bg-white hover:shadow-md transition">
+                            <div class="w-12 h-12 mx-auto bg-[#FFF5F9] text-[#FF5CAA] rounded-full flex items-center justify-center mb-3">
+                                <i class="fa-solid fa-cubes"></i>
+                            </div>
+                            <h1 class="text-3xl font-bold text-navy mb-1" id="contentComplexity">--</h1> <p class="text-xs text-graytext font-bold uppercase tracking-wider">Complexity</p>
+                        </div>
+                    </div>
+                </div>
+                <!-- <div class="flex items-center gap-4 mb-8">
+                    <div class="w-12 h-12 rounded-full bg-[#E0F9F4] text-success flex items-center justify-center text-xl">
+                        <i class="fa-solid fa-brain"></i>
+                    </div>
+                    <h3 class="text-2xl font-bold text-navy">Content Analysis</h3>
+                </div>
+
+                <div class="grid grid-cols-2 md:grid-cols-4 gap-8">
+                    <div class="bg-[#F8F9FC] rounded-3xl p-6 flex flex-col items-center text-center hover:bg-white hover:shadow-lg transition duration-200 cursor-default">
+                        <div class="w-14 h-14 rounded-full bg-lightbg text-primary flex items-center justify-center text-xl mb-3 shadow-sm"><i class="fa-solid fa-layer-group"></i></div>
+                        <h4 class="text-3xl font-bold text-navy">85%</h4>
+                        <p class="text-xs text-graytext font-bold uppercase tracking-wide mt-2">Topic Coverage</p>
+                    </div>
+                    <div class="bg-[#F8F9FC] rounded-3xl p-6 flex flex-col items-center text-center hover:bg-white hover:shadow-lg transition duration-200 cursor-default">
+                        <div class="w-14 h-14 rounded-full bg-[#FFF8E7] text-warning flex items-center justify-center text-xl mb-3 shadow-sm"><i class="fa-solid fa-lightbulb"></i></div>
+                        <h4 class="text-3xl font-bold text-navy">12</h4>
+                        <p class="text-xs text-graytext font-bold uppercase tracking-wide mt-2">Key Points</p>
+                    </div>
+                    <div class="bg-[#F8F9FC] rounded-3xl p-6 flex flex-col items-center text-center hover:bg-white hover:shadow-lg transition duration-200 cursor-default">
+                        <div class="w-14 h-14 rounded-full bg-[#E6FBF5] text-success flex items-center justify-center text-xl mb-3 shadow-sm"><i class="fa-solid fa-clipboard-question"></i></div>
+                        <h4 class="text-3xl font-bold text-navy">6</h4>
+                        <p class="text-xs text-graytext font-bold uppercase tracking-wide mt-2">Questions</p>
+                    </div>
+                    <div class="bg-[#F8F9FC] rounded-3xl p-6 flex flex-col items-center text-center hover:bg-white hover:shadow-lg transition duration-200 cursor-default">
+                        <div class="w-14 h-14 rounded-full bg-[#FFF5F9] text-[#FF5CAA] flex items-center justify-center text-xl mb-3 shadow-sm"><i class="fa-solid fa-cube"></i></div>
+                        <h4 class="text-3xl font-bold text-navy">Mid</h4>
+                        <p class="text-xs text-graytext font-bold uppercase tracking-wide mt-2">Complexity</p>
+                    </div>
+                </div> -->
+            </section>
+
+
+            <section class="bg-gradient-to-r from-[#fffcf5] to-white border border-[#FFE5B4] rounded-[24px] p-8 shadow-sm">
+                <div class="bg-white rounded-[24px] p-8 shadow-card mt-8 mb-12 border border-lightbg relative overflow-hidden">
+                    <div class="absolute top-0 right-0 w-64 h-64 bg-gradient-to-br from-indigo-50 to-white rounded-bl-full -z-0"></div>
+                    <div class="flex items-center gap-4 mb-6 relative z-10">
+                        <div class="w-12 h-12 rounded-full bg-[#FFF9EB] text-[#FFB020] flex items-center justify-center text-xl shadow-sm">
+                            <i class="fa-solid fa-wand-magic-sparkles"></i>
+                        </div>
+                        <h3 class="text-2xl font-bold text-navy">AI Performance Coach</h3>
+                    </div>
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6 relative z-10">
+                        <div class="flex gap-4 p-5 rounded-xl bg-white border border-lightbg shadow-sm hover:shadow-md transition border-l-4 border-l-[#FFB020]">
+                            <div class="w-8 h-8 rounded-full bg-[#FFF9EB] text-[#FFB020] flex-shrink-0 flex items-center justify-center font-bold text-sm">1</div>
+                            <p class="text-graytext font-medium leading-relaxed" id="coachSuggestion1">Analyzing your session data to generate specific improvements...</p>
+                        </div>
+                        <div class="flex gap-4 p-5 rounded-xl bg-white border border-lightbg shadow-sm hover:shadow-md transition border-l-4 border-l-[#6941C6]">
+                            <div class="w-8 h-8 rounded-full bg-[#F4F1FF] text-[#6941C6] flex-shrink-0 flex items-center justify-center font-bold text-sm">2</div>
+                            <p class="text-graytext font-medium leading-relaxed" id="coachSuggestion2">
+                                Identifying key growth areas...</p>
+                            </div>
+                        </div>
+                    </div>
+
+                <!-- <div class="flex items-center gap-4 mb-6">
+                    <div class="w-10 h-10 rounded-full bg-[#FFF8E7] text-warning flex items-center justify-center text-xl">
+                        <i class="fa-solid fa-wand-magic-sparkles"></i>
+                    </div>
+                    <h3 class="text-xl font-bold text-navy">AI Performance Coach</h3>
+                </div>
+
+                <div class="flex flex-col gap-4">
+                    <div class="bg-white p-5 rounded-2xl flex items-center gap-5 shadow-sm border-l-4 border-warning hover:translate-x-2 transition duration-200">
+                        <div class="w-9 h-9 rounded-full bg-[#FFF5E6] text-warning flex items-center justify-center font-bold text-sm shrink-0">1</div>
+                        <p class="text-navy font-medium text-base">Reduce filler words like "um" and "uh" to improve perceived confidence by <strong class="text-primary">15%</strong>.</p>
+                    </div>
+                    <div class="bg-white p-5 rounded-2xl flex items-center gap-5 shadow-sm border-l-4 border-primary hover:translate-x-2 transition duration-200">
+                        <div class="w-9 h-9 rounded-full bg-lightbg text-primary flex items-center justify-center font-bold text-sm shrink-0">2</div>
+                        <p class="text-navy font-medium text-base">Increase eye contact duration by <strong class="text-primary">10%</strong> during key concept explanations.</p>
+                    </div>
+                </div> -->
+            </section>
+
+        </main>
+    </div>
+    <!-- <script>
+    async function loadPerformanceData() {
+        try {
+            console.log("🔄 Fetching latest session data...");
+            const response = await fetch("http://127.0.0.1:8000/api/latest-session");
+            
+            if (!response.ok) throw new Error("Failed to connect to backend");
+            
+            const data = await response.json();
+            
+            if(data.error) {
+                console.warn("No analysis data found yet.");
+                return; 
+            }
+
+            console.log("✅ Data Received:", data);
+
+            // --- 1. TOP CARDS & BARS ---
+            const clarity = data.clarity?.clarity_score || 0;
+            const engagement = data.interaction?.interaction_ratio_percent || 0;
+            const overall = data.overall_score || 0;
+
+            setText('mainClarity', clarity + "%");
+            setText('mainEngagement', engagement + "%");
+            setText('mainOverall', overall + "%");
+
+            setTimeout(() => {
+                setWidth('barClarity', clarity + "%");
+                setWidth('barEngagement', engagement + "%");
+                setWidth('barOverall', overall + "%");
+            }, 100);
+
+            // --- 2. AUDIO SECTION ---
+            const wpm = data.clarity?.wpm || 0;
+            setText('audioWPM', wpm + " WPM");
+            
+            const wpmBadge = document.getElementById('wpmBadge');
+            if(wpmBadge) {
+                if(wpm > 150) { wpmBadge.innerText = "Fast"; wpmBadge.className = "bg-red-100 text-red-700 text-xs px-2 py-1 rounded font-bold"; }
+                else if(wpm < 100) { wpmBadge.innerText = "Slow"; wpmBadge.className = "bg-yellow-100 text-yellow-700 text-xs px-2 py-1 rounded font-bold"; }
+                else { wpmBadge.innerText = "Good"; wpmBadge.className = "bg-green-100 text-green-700 text-xs px-2 py-1 rounded font-bold"; }
+            }
+
+            setText('audioPitch', Math.round(data.vocal?.avg_pitch || 0) + " Hz");
+            setText('audioStatus', data.vocal?.delivery_status || "Normal");
+
+            // --- 3. VIDEO SECTION ---
+            const energy = Math.round(data.video?.gesture_energy_score || 0);
+            setText('videoEnergy', energy);
+            setText('videoEye', (data.video?.eye_contact_score || 0) + "%");
+            setText('videoInteraction', (data.interaction?.interaction_ratio_percent || 0) + "%");
+
+            // --- 4. CONTENT ANALYSIS (New Logic) ---
+            // Coverage maps to Clarity Score
+            setText('contentCoverage', clarity + "%"); 
+            
+            // Key Points estimated from WPM (approx 1 point per 15 words/min logic)
+            const estimatedPoints = Math.max(3, Math.round(wpm / 12)); 
+            setText('contentPoints', estimatedPoints);
+
+            // Questions estimated from Interaction %
+            const estimatedQuestions = Math.max(1, Math.round(engagement / 5));
+            setText('contentQuestions', estimatedQuestions);
+
+            // Complexity based on WPM (Faster = Higher Complexity usually)
+            let complexity = "Mid";
+            if (wpm > 140) complexity = "High";
+            if (wpm < 110) complexity = "Low";
+            setText('contentComplexity', complexity);
+
+        } catch (error) {
+            console.error("🔥 Error loading data:", error);
+        }
+    }
+    generateCoachAdvice(data);
+
+    // ... end of function ...
+
+    // --- NEW HELPER FUNCTION ---
+    function generateCoachAdvice(data) {
+        const wpm = data.clarity?.wpm || 0;
+        const interaction = data.interaction?.interaction_ratio_percent || 0;
+        const energy = data.video?.gesture_energy_score || 0;
+        const pitch = data.vocal?.avg_pitch || 0;
+
+        let adviceList = [];
+
+        // 1. Pace Logic
+        if (wpm > 150) {
+            adviceList.push(`Your speaking rate is high (${wpm} WPM). <b>Slowing down by 10%</b> during complex explanations will significantly improve student retention.`);
+        } else if (wpm < 110) {
+            adviceList.push(`Your pace is slightly slow (${wpm} WPM). Try <b>increasing your tempo</b> to maintain higher classroom energy and prevent disengagement.`);
+        }
+
+        // 2. Interaction Logic
+        if (interaction < 20) {
+            adviceList.push(`Student interaction is low (${interaction}%). Aim to <b>ask one open-ended question every 5 minutes</b> to trigger active participation.`);
+        }
+
+        // 3. Energy Logic
+        if (energy < 40) {
+            adviceList.push(`Visual engagement is static. Try using <b>more hand gestures</b> or moving across the podium to command attention dynamically.`);
+        }
+
+        // 4. Pitch Logic
+        if (pitch < 100) {
+            adviceList.push(`Your vocal pitch is consistent but low. Varying your intonation will make your delivery <b>30% more engaging</b>.`);
+        }
+
+        // Default Positive Reinforcement if mostly good
+        if (adviceList.length === 0) {
+            adviceList.push("Your pacing is excellent! Maintain this 'Goldilocks' speed to keep cognitive load balanced for students.");
+            adviceList.push("Great energy levels! Your dynamic delivery style is highly effective for keeping the class awake and focused.");
+        }
+
+        // Fallback to ensure we always have 2 suggestions
+        if (adviceList.length < 2) {
+            adviceList.push("Review the recording to identify moments where students seemed most engaged and replicate that style.");
+        }
+
+        // Inject into HTML
+        document.getElementById('coachSuggestion1').innerHTML = adviceList[0];
+        document.getElementById('coachSuggestion2').innerHTML = adviceList[1];
+    }
+
+    function setText(id, text) {
+        const el = document.getElementById(id);
+        if (el) el.innerText = text;
+    }
+
+    function setWidth(id, width) {
+        const el = document.getElementById(id);
+        if (el) el.style.width = width;
+    }
+
+    window.onload = loadPerformanceData;
+    </script> -->
+    <script>
+    async function loadPerformanceData() {
+        try {
+            console.log("🔄 Fetching latest session data...");
+            const response = await fetch("http://127.0.0.1:8000/api/latest-session");
+            
+            if (!response.ok) throw new Error("Failed to connect to backend");
+            
+            const data = await response.json();
+            
+            if(data.error) {
+                console.warn("No analysis data found yet.");
+                return; 
+            }
+
+            console.log("✅ Data Received:", data);
+
+            // --- 1. TOP CARDS & BARS ---
+            const clarity = data.clarity?.clarity_score || 0;
+            const engagement = data.interaction?.interaction_ratio_percent || 0;
+            const overall = data.overall_score || 0;
+
+            setText('mainClarity', clarity + "%");
+            setText('mainEngagement', engagement + "%");
+            setText('mainOverall', overall + "%");
+
+            setTimeout(() => {
+                setWidth('barClarity', clarity + "%");
+                setWidth('barEngagement', engagement + "%");
+                setWidth('barOverall', overall + "%");
+            }, 100);
+
+            // --- 2. AUDIO SECTION ---
+            const wpm = data.clarity?.wpm || 0;
+            setText('audioWPM', wpm + " WPM");
+            
+            const wpmBadge = document.getElementById('wpmBadge');
+            if(wpmBadge) {
+                if(wpm > 150) { wpmBadge.innerText = "Fast"; wpmBadge.className = "bg-red-100 text-red-700 text-xs px-2 py-1 rounded font-bold"; }
+                else if(wpm < 100) { wpmBadge.innerText = "Slow"; wpmBadge.className = "bg-yellow-100 text-yellow-700 text-xs px-2 py-1 rounded font-bold"; }
+                else { wpmBadge.innerText = "Good"; wpmBadge.className = "bg-green-100 text-green-700 text-xs px-2 py-1 rounded font-bold"; }
+            }
+
+            setText('audioPitch', Math.round(data.vocal?.avg_pitch || 0) + " Hz");
+            setText('audioStatus', data.vocal?.delivery_status || "Normal");
+
+            // --- 3. VIDEO SECTION ---
+            const energy = Math.round(data.video?.gesture_energy_score || 0);
+            setText('videoEnergy', energy);
+            setText('videoEye', (data.video?.eye_contact_score || 0) + "%");
+            setText('videoInteraction', (data.interaction?.interaction_ratio_percent || 0) + "%");
+
+            // --- 4. CONTENT ANALYSIS ---
+            setText('contentCoverage', clarity + "%"); 
+            const estimatedPoints = Math.max(3, Math.round(wpm / 12)); 
+            setText('contentPoints', estimatedPoints);
+            const estimatedQuestions = Math.max(1, Math.round(engagement / 5));
+            setText('contentQuestions', estimatedQuestions);
+            let complexity = "Mid";
+            if (wpm > 140) complexity = "High";
+            if (wpm < 110) complexity = "Low";
+            setText('contentComplexity', complexity);
+
+            // --- 5. AI COACH (✅ MOVED INSIDE HERE) ---
+            generateCoachAdvice(data);
+
+        } catch (error) {
+            console.error("🔥 Error loading data:", error);
+        }
+    }
+
+    // --- HELPER FUNCTION ---
+    function generateCoachAdvice(data) {
+        const wpm = data.clarity?.wpm || 0;
+        const interaction = data.interaction?.interaction_ratio_percent || 0;
+        const energy = data.video?.gesture_energy_score || 0;
+        const pitch = data.vocal?.avg_pitch || 0;
+
+        let adviceList = [];
+
+        // 1. Pace Logic
+        if (wpm > 150) {
+            adviceList.push(`Your speaking rate is high (${wpm} WPM). <b>Slowing down by 10%</b> during complex explanations will significantly improve student retention.`);
+        } else if (wpm < 110) {
+            adviceList.push(`Your pace is slightly slow (${wpm} WPM). Try <b>increasing your tempo</b> to maintain higher classroom energy and prevent disengagement.`);
+        }
+
+        // 2. Interaction Logic
+        if (interaction < 20) {
+            adviceList.push(`Student interaction is low (${interaction}%). Aim to <b>ask one open-ended question every 5 minutes</b> to trigger active participation.`);
+        }
+
+        // 3. Energy Logic
+        if (energy < 40) {
+            adviceList.push(`Visual engagement is static. Try using <b>more hand gestures</b> or moving across the podium to command attention dynamically.`);
+        }
+
+        // 4. Pitch Logic
+        if (pitch < 100) {
+            adviceList.push(`Your vocal pitch is consistent but low. Varying your intonation will make your delivery <b>30% more engaging</b>.`);
+        }
+
+        // Default Positive Reinforcement
+        if (adviceList.length === 0) {
+            adviceList.push("Your pacing is excellent! Maintain this 'Goldilocks' speed to keep cognitive load balanced for students.");
+            adviceList.push("Great energy levels! Your dynamic delivery style is highly effective for keeping the class awake and focused.");
+        }
+
+        // Fallback
+        if (adviceList.length < 2) {
+            adviceList.push("Review the recording to identify moments where students seemed most engaged and replicate that style.");
+        }
+
+        // Inject into HTML
+        const s1 = document.getElementById('coachSuggestion1');
+        const s2 = document.getElementById('coachSuggestion2');
+        
+        if(s1) s1.innerHTML = adviceList[0];
+        if(s2) s2.innerHTML = adviceList[1];
+    }
+
+    function setText(id, text) {
+        const el = document.getElementById(id);
+        if (el) el.innerText = text;
+    }
+
+    function setWidth(id, width) {
+        const el = document.getElementById(id);
+        if (el) el.style.width = width;
+    }
+
+    window.onload = loadPerformanceData;
+    </script>
+</body>
+</html>

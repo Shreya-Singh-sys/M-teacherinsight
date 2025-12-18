@@ -1,28 +1,221 @@
-import os
+# from fastapi import FastAPI, UploadFile, File
+# from fastapi.middleware.cors import CORSMiddleware
+# from fastapi.responses import FileResponse
+# from pydantic import BaseModel # <--- NEW IMPORT
+# import shutil
+# import os
+# import json
+# import asyncio
+# import subprocess
+# from pathlib import Path
+# from datetime import datetime
+
+# # --- CONFIGURATION ---
+# INPUT_DIR = Path("input")
+# INPUT_DIR.mkdir(exist_ok=True)
+# JSON_FILE = "session_history.json"
+
+# # Import Engines
+# from pdf_engine import PDFGenerator
+# from stream1_content import ContentEngine
+# from stream2_vocal import VocalEngine
+# from stream3_interaction import InteractionEngine
+# from stream4_video import VideoEngine
+
+# app = FastAPI()
+
+# app.add_middleware(
+#     CORSMiddleware,
+#     allow_origins=["*"],
+#     allow_credentials=True,
+#     allow_methods=["*"],
+#     allow_headers=["*"],
+# )
+
+# # Initialize Engines
+# pdf_engine = PDFGenerator()
+# content_engine = ContentEngine()
+# vocal_engine = VocalEngine()
+# interaction_engine = InteractionEngine()
+# video_engine = VideoEngine()
+
+# # --- HELPER: History Manager ---
+# def get_history_data():
+#     if not os.path.exists(JSON_FILE): return []
+#     try:
+#         with open(JSON_FILE, "r") as f: return json.load(f)
+#     except: return []
+
+# def save_history_data(data):
+#     history = get_history_data()
+#     if "_id" in data: del data["_id"]
+#     history.append(data)
+#     with open(JSON_FILE, "w") as f:
+#         json.dump(history, f, indent=4)
+
+# MOCK_BASELINE = {
+#     "overall_score": 60,
+#     "clarity": {"clarity_score": 65, "wpm": 110},
+#     "interaction": {"interaction_ratio_percent": 15},
+#     "video": {"eye_contact_score": 40, "gesture_energy_score": 40}
+# }
+
+# # --- NEW: COACH REQUEST MODEL ---
+# class CoachRequest(BaseModel):
+#     analysis_data: dict
+#     user_query: str
+
+# @app.get("/")
+# async def read_root():
+#     return FileResponse("index.html")
+
+# # --- NEW: CHATBOT ENDPOINT (Fixes "undefined") ---
+# @app.post("/coach")
+# async def coach_endpoint(req: CoachRequest):
+#     query = req.user_query.lower()
+#     data = req.analysis_data
+    
+#     # 1. Extract Scores safely
+#     clarity = data.get("clarity", {}).get("clarity_score", 0)
+#     wpm = data.get("clarity", {}).get("wpm", 0)
+#     pitch = data.get("vocal", {}).get("avg_pitch", 0)
+#     energy = data.get("video", {}).get("gesture_energy_score", 0)
+    
+#     # 2. Smart Logic (Rule-Based for reliability)
+#     reply = ""
+    
+#     if "voice" in query or "pitch" in query:
+#         if pitch < 100:
+#             reply = f"Your average pitch was low ({pitch} Hz). Try to vary your intonation to keep students engaged."
+#         else:
+#             reply = f"Your vocal modulation is good ({pitch} Hz). To improve further, try pausing for 2 seconds after asking a question."
+            
+#     elif "energy" in query or "gesture" in query:
+#         if energy < 50:
+#             reply = "Your visual energy score is low. Try standing up or using more hand gestures to emphasize key points."
+#         else:
+#             reply = "Your energy levels are fantastic! You are creating a very dynamic classroom environment."
+            
+#     elif "clarity" in query or "fast" in query or "slow" in query:
+#         if wpm > 150:
+#             reply = f"You are speaking quite fast ({wpm} WPM). Slow down slightly to ensure students can take notes."
+#         elif wpm < 110:
+#             reply = f"Your pace is a bit slow ({wpm} WPM). Try to pick up the tempo to maintain excitement."
+#         else:
+#             reply = "Your speaking pace is perfect. Focus on eliminating filler words like 'um' and 'uh'."
+            
+#     elif "improve" in query:
+#         reply = "Based on your data, the best area to improve is Interaction. Try asking open-ended questions every 5 minutes."
+        
+#     else:
+#         # Generic Fallback
+#         reply = f"I analyzed your session! Your Overall Score is {data.get('overall_score', 0)}. Ask me specifically about 'Voice', 'Energy', or 'Clarity' for more details."
+
+#     return {"reply": reply}
+
+# # --- OPTIMIZATION ---
+# def optimize_files(input_path: Path):
+#     filename_no_ext = input_path.stem
+#     fast_video = INPUT_DIR / f"{filename_no_ext}_fast.mp4"
+#     fast_audio = INPUT_DIR / f"{filename_no_ext}_fast.wav"
+#     print(f"⚡ Optimizing: {input_path.name}...")
+#     try:
+#         cmd_vid = ['ffmpeg', '-y', '-i', str(input_path), '-ss', '0', '-t', '45', '-vf', 'scale=480:-2', '-r', '15', '-c:v', 'libx264', '-preset', 'ultrafast', str(fast_video)]
+#         subprocess.run(cmd_vid, check=True, stdout=subprocess.DEVNULL, stderr=subprocess.PIPE)
+#         cmd_aud = ['ffmpeg', '-y', '-i', str(fast_video), '-ac', '1', '-ar', '16000', str(fast_audio)]
+#         subprocess.run(cmd_aud, check=True, stdout=subprocess.DEVNULL, stderr=subprocess.PIPE)
+#         return str(fast_video), str(fast_audio)
+#     except subprocess.CalledProcessError:
+#         return str(input_path), str(input_path)
+
+# @app.post("/analyze")
+# async def analyze_endpoint(file: UploadFile = File(...)):
+#     print(f"\n🚀 New Upload: {file.filename}")
+#     safe_filename = file.filename.replace(" ", "_")
+#     save_path = INPUT_DIR / safe_filename
+#     with open(save_path, "wb") as buffer: shutil.copyfileobj(file.file, buffer)
+        
+#     vid_path, aud_path = optimize_files(save_path)
+    
+#     try:
+#         print("🧠 Running AI Engines...")
+#         task1 = asyncio.to_thread(content_engine.transcribe, aud_path)
+#         task2 = asyncio.to_thread(vocal_engine.analyze, aud_path)
+#         task3 = asyncio.to_thread(interaction_engine.analyze, aud_path)
+#         task4 = asyncio.to_thread(video_engine.analyze, vid_path)
+        
+#         results = await asyncio.gather(task1, task2, task3, task4, return_exceptions=True)
+
+#         def get_res(result, default): return result if not isinstance(result, Exception) else default
+
+#         data = {
+#             "timestamp": datetime.now().strftime("%Y-%m-%d %H:%M"),
+#             "clarity": get_res(results[0], {"clarity_score": 0, "wpm": 0, "feedback": "Processing Error"}),
+#             "vocal": get_res(results[1], {"avg_pitch": 0, "delivery_status": "Neutral"}),
+#             "interaction": get_res(results[2], {"interaction_ratio_percent": 0}),
+#             "video": get_res(results[3], {"eye_contact_score": 0, "gesture_energy_score": 0})
+#         }
+        
+#         scores = [
+#             data["clarity"].get("clarity_score", 0),
+#             data["interaction"].get("interaction_ratio_percent", 0) * 2,
+#             data["video"].get("eye_contact_score", 0),
+#             min(data["video"].get("gesture_energy_score", 0) / 10, 100)
+#         ]
+#         overall = int(sum(scores) / len(scores))
+#         data["overall_score"] = min(overall, 100)
+        
+#         history = get_history_data()
+#         prev = history[-1] if len(history) > 0 else MOCK_BASELINE
+#         data["comparison"] = {
+#             "overall_diff": data["overall_score"] - prev.get("overall_score", 0),
+#             "clarity_diff": data["clarity"].get("clarity_score", 0) - prev.get("clarity", {}).get("clarity_score", 0),
+#             "interaction_diff": data["interaction"].get("interaction_ratio_percent", 0) - prev.get("interaction", {}).get("interaction_ratio_percent", 0),
+#             "energy_diff": 0
+#         }
+        
+#         save_history_data(data)
+#         return data
+
+#     finally:
+#         print("🗑️ Cleaning up temp files...")
+#         for p in [save_path, vid_path, aud_path]:
+#             if os.path.exists(p):
+#                 try: os.remove(p)
+#                 except: pass
+
+# @app.post("/generate_pdf")
+# async def pdf_endpoint(data: dict):
+#     path = "TIE_Report.pdf"
+#     pdf_engine.generate_report(data, path)
+#     return FileResponse(path, filename="TIE_Analysis.pdf")
+from fastapi import FastAPI, UploadFile, File
+from fastapi.middleware.cors import CORSMiddleware
+from fastapi.responses import FileResponse
+from fastapi.staticfiles import StaticFiles # <--- NEW IMPORT
+from pydantic import BaseModel
 import shutil
+import os
 import json
 import asyncio
 import subprocess
-import numpy as np
-from datetime import datetime
-from fastapi import FastAPI, UploadFile, File
-from fastapi.middleware.cors import CORSMiddleware
 from pathlib import Path
-from pydantic import BaseModel
-from fusion_engine import FusionEngine 
-from fastapi.responses import FileResponse # <--- NEW IMPORT
-from pdf_engine import PDFGenerator # <--- NEW IMPORT
-from fastapi.responses import JSONResponse  # <--- YEH LINE ADD KAREIN
-from stream1_content import ContentAnalyzer
-from stream2_vocal import VocalAnalyzer
-from stream3_interaction import InteractionAnalyzer
-from stream4_video import VideoAnalyzer
-from coach_engine import CoachEngine
-from history_engine import HistoryEngine
+from datetime import datetime
+
+# --- CONFIGURATION ---
+INPUT_DIR = Path("input")
+INPUT_DIR.mkdir(exist_ok=True)
+JSON_FILE = "session_history.json"
+
+# Import Engines
+from pdf_engine import PDFGenerator
+from stream1_content import ContentEngine
+from stream2_vocal import VocalEngine
+from stream3_interaction import InteractionEngine
+from stream4_video import VideoEngine
 
 app = FastAPI()
 
-# Enable CORS (Allows Frontend to talk to Backend)
 app.add_middleware(
     CORSMiddleware,
     allow_origins=["*"],
@@ -31,188 +224,158 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-INPUT_DIR = Path("input")
-INPUT_DIR.mkdir(exist_ok=True)
-
-print("🚀 Initializing AI Engines...")
-content_engine = ContentAnalyzer()
-vocal_engine = VocalAnalyzer()
-interaction_engine = InteractionAnalyzer()
-video_engine = VideoAnalyzer()
-coach_engine = CoachEngine()
-# ... inside Initializing AI Engines ...
-fusion_engine = FusionEngine() 
+# Initialize Engines
 pdf_engine = PDFGenerator()
-history_engine = HistoryEngine()
+content_engine = ContentEngine()
+vocal_engine = VocalEngine()
+interaction_engine = InteractionEngine()
+video_engine = VideoEngine()
 
-# --- Data Models ---
+# --- 1. MOUNT THE FRONTEND FOLDER (THE FIX) ---
+# This tells Python: "Allow access to any file inside the 'frontend' folder"
+app.mount("/frontend", StaticFiles(directory="frontend"), name="frontend")
+
+# --- HELPER: History Manager ---
+def get_history_data():
+    if not os.path.exists(JSON_FILE): return []
+    try:
+        with open(JSON_FILE, "r") as f: return json.load(f)
+    except: return []
+
+def save_history_data(data):
+    history = get_history_data()
+    if "_id" in data: del data["_id"]
+    if "history_scores" in data: del data["history_scores"]
+    history.append(data)
+    with open(JSON_FILE, "w") as f:
+        json.dump(history, f, indent=4)
+
+MOCK_BASELINE = {
+    "overall_score": 60,
+    "clarity": {"clarity_score": 65, "wpm": 110},
+    "interaction": {"interaction_ratio_percent": 15},
+    "video": {"eye_contact_score": 40, "gesture_energy_score": 40}
+}
+
 class CoachRequest(BaseModel):
     analysis_data: dict
     user_query: str
 
-def ensure_wav(audio_path):
-    path_obj = Path(audio_path)
-    wav_path = path_obj.with_suffix(".wav")
-    if not wav_path.exists():
-        print(f"Converting to WAV: {wav_path}")
-        os.system(f'ffmpeg -y -i "{audio_path}" -ac 1 -ar 16000 "{wav_path}" -loglevel quiet')
-    return str(wav_path)
-
-def clean_data(obj):
-    if isinstance(obj, dict):
-        return {k: clean_data(v) for k, v in obj.items()}
-    elif isinstance(obj, list):
-        return [clean_data(i) for i in obj]
-    elif isinstance(obj, (np.int64, np.int32, np.integer)):
-        return int(obj)
-    elif isinstance(obj, (np.float64, np.float32, np.floating)):
-        return float(obj)
-    elif isinstance(obj, np.ndarray):
-        return clean_data(obj.tolist())
-    else:
-        return obj
-
-
-def create_fast_file(input_path):
-    # output name: video_fast.mp4
-    output_path = str(input_path).replace(".mp4", "_fast.mp4")
-    print("⚡ Optimizing video for speed...")
-    command = [
-        'ffmpeg', '-y',
-        '-i', input_path,
-        '-ss', '0', '-t', '45',
-        '-vf', 'scale=480:-1',
-        '-r', '15',
-        output_path
-    ]
-    # Run silently
-    subprocess.run(command, stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
-    return output_path
-
-@app.post("/upload_video")
-async def analyze_video(file: UploadFile = File(...)):
-    print(f"\n📥 Received file: {file.filename}")
-    
-    # 1. Save Original
-    save_path = INPUT_DIR / file.filename
-    with open(save_path, "wb") as buffer:
-        shutil.copyfileobj(file.file, buffer)
-    
-    # 2. CREATE THE "FAST" VERSION
-    # This takes ~2 seconds but saves 2 minutes of processing time
-    fast_video_path = create_fast_file(str(save_path))
-    fast_audio_path = ensure_wav(fast_video_path) # Extract audio from the short file
-
-    print("🚀 Starting PARALLEL Analysis on Fast Version...")
-
-    # 3. Analyze the Small Files
-    task_transcript = asyncio.to_thread(content_engine.transcribe_audio, fast_audio_path)
-    task_vocal = asyncio.to_thread(vocal_engine.analyze_audio, fast_audio_path)
-    task_interaction = asyncio.to_thread(interaction_engine.analyze_interaction, fast_audio_path)
-    # Note: We analyze the FAST video here
-    task_video = asyncio.to_thread(video_engine.analyze_video, fast_video_path)
-
-    transcript, vocal_res, interaction_res, video_res = await asyncio.gather(
-        task_transcript, 
-        task_vocal, 
-        task_interaction, 
-        task_video
-    )
-    
-    # ... (Rest of your fusion/response code is unchanged) ...    
-    # Run Clarity
-    try:
-        clarity_data = content_engine.analyze_clarity(transcript)
-        if isinstance(clarity_data, str):
-            try:
-                clarity_res = json.loads(clarity_data)
-            except:
-                clarity_res = {"feedback": clarity_data, "clarity_score": 75}
-        else:
-            clarity_res = clarity_data
-    except Exception as e:
-        clarity_res = {"error": str(e), "clarity_score": 0}
-
-    # Consolidate Stream Results
-    raw_results = {
-        "clarity": clarity_res,
-        "vocal": vocal_res,
-        "interaction": interaction_res,
-        "video": video_res
-    }
-
-    # --- NEW: CALCULATE OVERALL SCORE ---
-    overall_score = fusion_engine.calculate_overall(raw_results)
-
-    # Add score to final response
-    final_output = {
-        **raw_results,
-        "overall_score": overall_score 
-    }
-
-    print(f"✅ Analysis Complete. Overall Score: {overall_score}/100")
-    # 1. Get Previous Session (for comparison)
-    prev_session = history_engine.get_previous_session()
-
-    comparison = {}
-    if prev_session:
-        comparison = {
-            "overall_diff": overall_score - prev_session.get("overall_score", 0),
-        
-        # Use .get() here to prevent crash if clarity is missing
-            "clarity_diff": raw_results["clarity"].get("clarity_score", 0) - prev_session["clarity"].get("clarity_score", 0),
-        
-        # This was the line causing your error. I added .get() to the first part.
-            "interaction_diff": raw_results["interaction"].get("interaction_ratio_percent", 0) - prev_session["interaction"].get("interaction_ratio_percent", 0),
-        
-        # Use .get() here too for safety
-           "energy_diff": raw_results["video"].get("gesture_energy_score", 0) - prev_session["video"].get("gesture_energy_score", 0)}        
-    else:
-        comparison = {
-            "overall_diff": 0, "clarity_diff": 0, "interaction_diff": 0, "energy_diff": 0}
-
-# 2. Build Final Output
-    final_output = {
-        **raw_results,
-        "overall_score": overall_score,
-        "comparison": comparison,  # <--- SEND DIFFS TO FRONTEND
-        "timestamp": datetime.now().strftime("%Y-%m-%d")}
-    final_output = clean_data(final_output)
-
-# 3. SAVE this session for next time
-    history_engine.save_session(final_output)
-
-    print(f"✅ Comparison Data Generated. Diff: {comparison['overall_diff']}")
-    return final_output
-    # ---- MongoDB Store ----
+@app.get("/")
+async def read_root():
+    return FileResponse("index.html")
 
 @app.post("/coach")
-async def ask_coach(request: CoachRequest):
-    print(f"\n🤖 Coach Query: {request.user_query}")
-    advice = coach_engine.provide_coaching(
-        request.analysis_data, 
-        request.user_query
-    )
-    return {"reply": advice}
-# --- PDF GENERATION ENDPOINT ---
+async def coach_endpoint(req: CoachRequest):
+    query = req.user_query.lower()
+    data = req.analysis_data
+    
+    # 1. Extract Scores
+    clarity = data.get("clarity", {}).get("clarity_score", 0)
+    wpm = data.get("clarity", {}).get("wpm", 0)
+    pitch = data.get("vocal", {}).get("avg_pitch", 0)
+    energy = data.get("video", {}).get("gesture_energy_score", 0)
+    
+    # 2. Logic
+    reply = ""
+    if "voice" in query or "pitch" in query:
+        reply = f"Your average pitch was {pitch} Hz. " + ("Try to vary your intonation more." if pitch < 100 else "Good modulation.")
+    elif "energy" in query or "gesture" in query:
+        reply = "Your visual energy is low. Use more hand gestures." if energy < 50 else "Great dynamic energy!"
+    elif "clarity" in query or "fast" in query:
+        reply = f"You are speaking at {wpm} WPM. " + ("Slow down slightly." if wpm > 150 else "Pace is good.")
+    elif "improve" in query:
+        reply = "Focus on student interaction ratios next time."
+    else:
+        reply = f"I analyzed your session! Your Overall Score is {data.get('overall_score', 0)}."
+    return {"reply": reply}
+
+def optimize_files(input_path: Path):
+    filename_no_ext = input_path.stem
+    fast_video = INPUT_DIR / f"{filename_no_ext}_fast.mp4"
+    fast_audio = INPUT_DIR / f"{filename_no_ext}_fast.wav"
+    print(f"⚡ Optimizing: {input_path.name}...")
+    try:
+        cmd_vid = ['ffmpeg', '-y', '-i', str(input_path), '-ss', '0', '-t', '45', '-vf', 'scale=480:-2', '-r', '15', '-c:v', 'libx264', '-preset', 'ultrafast', str(fast_video)]
+        subprocess.run(cmd_vid, check=True, stdout=subprocess.DEVNULL, stderr=subprocess.PIPE)
+        cmd_aud = ['ffmpeg', '-y', '-i', str(fast_video), '-ac', '1', '-ar', '16000', str(fast_audio)]
+        subprocess.run(cmd_aud, check=True, stdout=subprocess.DEVNULL, stderr=subprocess.PIPE)
+        return str(fast_video), str(fast_audio)
+    except subprocess.CalledProcessError:
+        return str(input_path), str(input_path)
+
+# --- NEW: API TO GET LATEST SESSION DATA ---
+@app.get("/api/latest-session")
+async def get_latest_session():
+    history = get_history_data()
+    if not history:
+        return {"error": "No data found"}
+    
+    # Return the most recent entry (Last item in the list)
+    return history[-1]
+
+@app.post("/analyze")
+async def analyze_endpoint(file: UploadFile = File(...)):
+    print(f"\n🚀 New Upload: {file.filename}")
+    safe_filename = file.filename.replace(" ", "_")
+    save_path = INPUT_DIR / safe_filename
+    with open(save_path, "wb") as buffer: shutil.copyfileobj(file.file, buffer)
+        
+    vid_path, aud_path = optimize_files(save_path)
+    
+    try:
+        print("🧠 Running AI Engines...")
+        task1 = asyncio.to_thread(content_engine.transcribe, aud_path)
+        task2 = asyncio.to_thread(vocal_engine.analyze, aud_path)
+        task3 = asyncio.to_thread(interaction_engine.analyze, aud_path)
+        task4 = asyncio.to_thread(video_engine.analyze, vid_path)
+        
+        results = await asyncio.gather(task1, task2, task3, task4, return_exceptions=True)
+
+        def get_res(result, default): return result if not isinstance(result, Exception) else default
+
+        data = {
+            "timestamp": datetime.now().strftime("%Y-%m-%d %H:%M"),
+            "clarity": get_res(results[0], {"clarity_score": 0, "wpm": 0, "feedback": "Processing Error"}),
+            "vocal": get_res(results[1], {"avg_pitch": 0, "delivery_status": "Neutral"}),
+            "interaction": get_res(results[2], {"interaction_ratio_percent": 0}),
+            "video": get_res(results[3], {"eye_contact_score": 0, "gesture_energy_score": 0})
+        }
+        
+        scores = [
+            data["clarity"].get("clarity_score", 0),
+            data["interaction"].get("interaction_ratio_percent", 0) * 2,
+            data["video"].get("eye_contact_score", 0),
+            min(data["video"].get("gesture_energy_score", 0) / 10, 100)
+        ]
+        overall = int(sum(scores) / len(scores))
+        data["overall_score"] = min(overall, 100)
+        
+        save_history_data(data)
+        
+        full_history = get_history_data()
+        graph_scores = [entry.get("overall_score", 0) for entry in full_history]
+        data["history_scores"] = graph_scores
+        
+        prev = full_history[-2] if len(full_history) > 1 else MOCK_BASELINE
+        data["comparison"] = {
+            "overall_diff": data["overall_score"] - prev.get("overall_score", 0),
+            "clarity_diff": data["clarity"].get("clarity_score", 0) - prev.get("clarity", {}).get("clarity_score", 0),
+            "interaction_diff": data["interaction"].get("interaction_ratio_percent", 0) - prev.get("interaction", {}).get("interaction_ratio_percent", 0),
+            "energy_diff": 0
+        }
+        
+        return data
+
+    finally:
+        print("🗑️ Cleaning up temp files...")
+        for p in [save_path, vid_path, aud_path]:
+            if os.path.exists(p):
+                try: os.remove(p)
+                except: pass
+
 @app.post("/generate_pdf")
-async def generate_pdf(request: dict):
-    print("📄 Generating PDF Report...")
-
-    # Create a unique filename
-    filename = "TIE_Report_Session.pdf"
-    file_path = INPUT_DIR / filename
-
-    # Generate PDF using the engine
-    pdf_engine.generate_report(request, str(file_path))
-
-    # Return as a downloadable file
-    return FileResponse(
-        path=file_path, 
-        filename=filename, 
-        media_type='application/pdf'
-    )
-
-@app.get("/")
-def home():
-    return {"message": "TIE Backend is Running!"}
+async def pdf_endpoint(data: dict):
+    path = "TIE_Report.pdf"
+    pdf_engine.generate_report(data, path)
+    return FileResponse(path, filename="TIE_Analysis.pdf")

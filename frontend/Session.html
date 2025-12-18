@@ -1,0 +1,252 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Class Sessions | TIE Hacks</title>
+    
+    <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;700&family=Inter:wght@400;600;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <script src="https://cdn.tailwindcss.com"></script>
+
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        navy: '#2B3674',
+                        primary: '#4318FF',
+                        lightbg: '#F4F7FE',
+                        graytext: '#A3AED0',
+                        success: '#05CD99',
+                        warning: '#FFB547',
+                    },
+                    fontFamily: {
+                        sans: ['DM Sans', 'sans-serif'],
+                        sidebar: ['Inter', 'sans-serif'],
+                    },
+                    boxShadow: {
+                        'soft': '0px 18px 40px rgba(112, 144, 176, 0.12)',
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        .no-scrollbar::-webkit-scrollbar { display: none; }
+        .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
+        
+        /* Custom Hover for Sidebar */
+        .nav-item { transition: all 0.2s; border-left: 3px solid transparent; }
+        .nav-item:hover { background-color: #eef2ff; color: #4318FF; padding-left: 1.5rem; border-left-color: #4318FF; }
+        
+        /* Table Row Hover */
+        tr.group:hover td { background-color: rgba(249, 250, 252, 0.8); transition: background-color 0.2s ease; }
+    </style>
+</head>
+
+<body class="flex h-screen bg-[#F4F7FE] text-navy font-sans overflow-hidden">
+
+    <aside class="w-64 bg-white shadow-xl flex flex-col p-6 z-50 border-r border-slate-200 font-medium h-full shrink-0 font-sidebar">
+        
+        <div class="flex items-center gap-3 mb-10">
+            <div class="w-10 h-10 rounded-lg bg-gradient-to-br from-indigo-600 to-sky-500 flex items-center justify-center text-white font-bold shadow-lg shadow-indigo-500/20">T</div>
+            <h1 class="text-xl font-extrabold text-slate-800 tracking-tight">TIE Hacks</h1>
+        </div>
+    
+        <nav class="flex flex-col gap-2 text-sm">
+            <a href="/" class="nav-item text-slate-500 px-4 py-3 rounded-r-xl">
+                Dashboard
+            </a>
+            
+            <a href="performance.html" class="nav-item text-slate-500 px-4 py-3 rounded-r-xl">Performance Overview</a>
+    
+            <a href="Session.html" class="text-indigo-700 bg-indigo-50 px-4 py-3 rounded-r-xl border-l-4 border-indigo-600 shadow-sm font-semibold">
+                Class Sessions
+            </a>
+
+            <a href="#" class="nav-item text-slate-500 px-4 py-3 rounded-r-xl">AI Reports</a>
+            <a href="settings.html" class="nav-item text-slate-500 px-4 py-3 rounded-r-xl">Settings</a>
+        </nav>
+    
+        <div class="mt-auto">
+            <button class="w-full border-2 border-slate-200 text-slate-600 py-2.5 rounded-xl hover:bg-slate-50 hover:border-slate-300 transition text-sm font-bold">
+                Log Out
+            </button>
+        </div>
+    
+    </aside>
+
+
+    <div class="flex-1 h-full overflow-y-auto relative no-scrollbar">
+        <main class="p-8 lg:p-12 mx-auto w-full max-w-[1800px]">
+            
+            <header class="flex flex-col md:flex-row md:items-end justify-between mb-10 gap-4">
+                <div>
+                    <p class="text-graytext text-sm font-medium mb-1">Pages / Class Sessions</p>
+                    <h1 class="text-5xl font-bold text-navy tracking-tight leading-tight">Session History</h1>
+                </div>
+                
+                <div class="flex items-center gap-4 bg-white/80 backdrop-blur-md p-2.5 rounded-full shadow-soft">
+                    <div class="hidden md:flex items-center gap-2 px-4 py-1.5 bg-lightbg/80 rounded-full text-navy font-bold text-sm">
+                        <i class="fa-regular fa-calendar text-primary"></i> Dec 18, 2025
+                    </div>
+                    <button class="w-10 h-10 rounded-full text-graytext hover:text-navy hover:bg-lightbg transition flex items-center justify-center">
+                        <i class="fa-regular fa-bell text-xl"></i>
+                    </button>
+                    <div class="w-10 h-10 rounded-full bg-navy text-white flex items-center justify-center font-bold shadow-md text-sm cursor-pointer">
+                        TA
+                    </div>
+                </div>
+            </header>
+
+
+            <div class="bg-white/60 backdrop-blur-xl rounded-[20px] shadow-soft p-8 min-h-[650px] flex flex-col relative border border-white/50">
+                
+                <div class="flex items-center gap-4 mb-8">
+                    <div class="w-12 h-12 rounded-full bg-white text-primary flex items-center justify-center text-xl shadow-sm">
+                        <i class="fa-solid fa-list-ul"></i>
+                    </div>
+                    <h2 class="text-2xl font-bold text-navy">All Sessions List</h2>
+                </div>
+
+                <div class="overflow-x-auto flex-1">
+                    <table class="w-full min-w-[1000px] border-collapse">
+                        <thead>
+                            <tr class="border-b border-gray-200/60">
+                                <th class="py-5 text-center w-16"><input type="checkbox" class="w-4 h-4 rounded border-gray-300 text-primary focus:ring-primary"></th>
+                                <th class="py-5 text-center text-xs font-bold text-graytext uppercase tracking-wider">Session ID</th>
+                                <th class="py-5 text-center text-xs font-bold text-graytext uppercase tracking-wider">Date</th>
+                                <th class="py-5 text-center text-xs font-bold text-graytext uppercase tracking-wider">Subject</th>
+                                <th class="py-5 text-center text-xs font-bold text-graytext uppercase tracking-wider">Clarity</th>
+                                <th class="py-5 text-center text-xs font-bold text-graytext uppercase tracking-wider">Engagement</th>
+                                <th class="py-5 text-center text-xs font-bold text-graytext uppercase tracking-wider">Delivery</th>
+                                <th class="py-5 text-center text-xs font-bold text-graytext uppercase tracking-wider">Status</th>
+                                <th class="py-5 text-center text-xs font-bold text-graytext uppercase tracking-wider">Action</th>
+                            </tr>
+                        </thead>
+
+                        <tbody class="text-sm font-semibold text-slate-600">
+                            
+                            <tr class="group border-b border-gray-100/60 hover:bg-white/50 transition-colors">
+                                <td class="py-6 text-center"><input type="checkbox" class="w-4 h-4 rounded border-gray-300 text-primary focus:ring-primary"></td>
+                                <td class="py-6 text-primary font-bold text-center">#SESS-892</td>
+                                <td class="py-6 text-slate-500 text-center">Dec 06, 2025</td>
+                                <td class="py-6 text-center text-navy font-bold">Adv. Math</td>
+                                <td class="py-6 text-center">85%</td>
+                                <td class="py-6 text-center">88%</td>
+                                <td class="py-6 text-center">82%</td>
+                                <td class="py-6 text-center">
+                                    <div class="inline-flex items-center justify-center w-32 py-2 rounded-full bg-emerald-100 text-emerald-600 font-bold text-xs gap-2">
+                                        <i class="fa-solid fa-circle-check"></i> Excellent
+                                    </div>
+                                </td>
+                                <td class="py-6 text-center">
+                                    <button class="flex items-center justify-center gap-2 text-graytext hover:text-primary font-bold text-xs border border-gray-200 hover:border-primary px-4 py-2 rounded-lg transition-all mx-auto bg-white">
+                                        <i class="fa-solid fa-download"></i> Report
+                                    </button>
+                                </td>
+                            </tr>
+
+                            <tr class="group border-b border-gray-100/60 hover:bg-white/50 transition-colors">
+                                <td class="py-6 text-center"><input type="checkbox" class="w-4 h-4 rounded border-gray-300 text-primary focus:ring-primary"></td>
+                                <td class="py-6 text-primary font-bold text-center">#SESS-891</td>
+                                <td class="py-6 text-slate-500 text-center">Dec 04, 2025</td>
+                                <td class="py-6 text-center text-navy font-bold">Calculus I</td>
+                                <td class="py-6 text-center">72%</td>
+                                <td class="py-6 text-center">75%</td>
+                                <td class="py-6 text-center">68%</td>
+                                <td class="py-6 text-center">
+                                    <div class="inline-flex items-center justify-center w-32 py-2 rounded-full bg-orange-100 text-orange-500 font-bold text-xs gap-2">
+                                        <i class="fa-solid fa-circle-exclamation"></i> Average
+                                    </div>
+                                </td>
+                                <td class="py-6 text-center">
+                                    <button class="flex items-center justify-center gap-2 text-graytext hover:text-primary font-bold text-xs border border-gray-200 hover:border-primary px-4 py-2 rounded-lg transition-all mx-auto bg-white">
+                                        <i class="fa-solid fa-download"></i> Report
+                                    </button>
+                                </td>
+                            </tr>
+
+                            <tr class="group border-b border-gray-100/60 hover:bg-white/50 transition-colors">
+                                <td class="py-6 text-center"><input type="checkbox" class="w-4 h-4 rounded border-gray-300 text-primary focus:ring-primary"></td>
+                                <td class="py-6 text-primary font-bold text-center">#SESS-890</td>
+                                <td class="py-6 text-slate-500 text-center">Dec 01, 2025</td>
+                                <td class="py-6 text-center text-navy font-bold">Geometry</td>
+                                <td class="py-6 text-center">88%</td>
+                                <td class="py-6 text-center">90%</td>
+                                <td class="py-6 text-center">86%</td>
+                                <td class="py-6 text-center">
+                                    <div class="inline-flex items-center justify-center w-32 py-2 rounded-full bg-emerald-100 text-emerald-600 font-bold text-xs gap-2">
+                                        <i class="fa-solid fa-circle-check"></i> Excellent
+                                    </div>
+                                </td>
+                                <td class="py-6 text-center">
+                                    <button class="flex items-center justify-center gap-2 text-graytext hover:text-primary font-bold text-xs border border-gray-200 hover:border-primary px-4 py-2 rounded-lg transition-all mx-auto bg-white">
+                                        <i class="fa-solid fa-download"></i> Report
+                                    </button>
+                                </td>
+                            </tr>
+
+                            <tr class="group border-b border-gray-100/60 hover:bg-white/50 transition-colors">
+                                <td class="py-6 text-center"><input type="checkbox" class="w-4 h-4 rounded border-gray-300 text-primary focus:ring-primary"></td>
+                                <td class="py-6 text-primary font-bold text-center">#SESS-889</td>
+                                <td class="py-6 text-slate-500 text-center">Nov 28, 2025</td>
+                                <td class="py-6 text-center text-navy font-bold">Algebra II</td>
+                                <td class="py-6 text-center">80%</td>
+                                <td class="py-6 text-center">82%</td>
+                                <td class="py-6 text-center">78%</td>
+                                <td class="py-6 text-center">
+                                    <div class="inline-flex items-center justify-center w-32 py-2 rounded-full bg-emerald-50 text-emerald-500 font-bold text-xs gap-2">
+                                        <i class="fa-solid fa-check"></i> Good
+                                    </div>
+                                </td>
+                                <td class="py-6 text-center">
+                                    <button class="flex items-center justify-center gap-2 text-graytext hover:text-primary font-bold text-xs border border-gray-200 hover:border-primary px-4 py-2 rounded-lg transition-all mx-auto bg-white">
+                                        <i class="fa-solid fa-download"></i> Report
+                                    </button>
+                                </td>
+                            </tr>
+
+                            <tr class="group border-b border-gray-100/60 hover:bg-white/50 transition-colors">
+                                <td class="py-6 text-center"><input type="checkbox" class="w-4 h-4 rounded border-gray-300 text-primary focus:ring-primary"></td>
+                                <td class="py-6 text-primary font-bold text-center">#SESS-888</td>
+                                <td class="py-6 text-slate-500 text-center">Nov 25, 2025</td>
+                                <td class="py-6 text-center text-navy font-bold">Trigonometry</td>
+                                <td class="py-6 text-center">76%</td>
+                                <td class="py-6 text-center">79%</td>
+                                <td class="py-6 text-center">74%</td>
+                                <td class="py-6 text-center">
+                                    <div class="inline-flex items-center justify-center w-32 py-2 rounded-full bg-orange-100 text-orange-500 font-bold text-xs gap-2">
+                                        <i class="fa-solid fa-circle-exclamation"></i> Average
+                                    </div>
+                                </td>
+                                <td class="py-6 text-center">
+                                    <button class="flex items-center justify-center gap-2 text-graytext hover:text-primary font-bold text-xs border border-gray-200 hover:border-primary px-4 py-2 rounded-lg transition-all mx-auto bg-white">
+                                        <i class="fa-solid fa-download"></i> Report
+                                    </button>
+                                </td>
+                            </tr>
+
+                        </tbody>
+                    </table>
+                </div>
+
+                <div class="flex justify-between items-center mt-auto pt-6 border-t border-gray-100/80 text-sm text-graytext/80">
+                    <p>Showing <span class="font-bold text-navy">5</span> of <span class="font-bold text-navy">24</span> sessions</p>
+                    <div class="flex gap-2">
+                        <button class="w-8 h-8 rounded-lg border border-gray-200/80 hover:bg-white flex items-center justify-center transition"><i class="fa-solid fa-chevron-left"></i></button>
+                        <button class="w-8 h-8 rounded-lg bg-primary text-white font-bold shadow-md">1</button>
+                        <button class="w-8 h-8 rounded-lg border border-gray-200/80 hover:bg-white flex items-center justify-center transition">2</button>
+                        <button class="w-8 h-8 rounded-lg border border-gray-200/80 hover:bg-white flex items-center justify-center transition">3</button>
+                        <button class="w-8 h-8 rounded-lg border border-gray-200/80 hover:bg-white flex items-center justify-center transition"><i class="fa-solid fa-chevron-right"></i></button>
+                    </div>
+                </div>
+
+            </div>
+
+        </main>
+    </div>
+    
+</body>
+</html>

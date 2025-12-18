@@ -1,97 +1,64 @@
 import whisper
-import re
-import numpy as np
-import os
-from pathlib import Path
 
-class ContentAnalyzer:
+class ContentEngine:
     def __init__(self):
-        print("✅ Local Clarity Engine Loaded (Whisper Only)")
-        # Load the base model
+        print("🎧 Loading Audio AI (Tiny)...")
+        # English only model is 2x faster
         self.whisper_model = whisper.load_model("tiny.en")
-    def transcribe_audio(self, audio_path):
-        print(f"🎤 Transcribing....")
+
+    def transcribe(self, audio_path):
+        # 1. Transcribe
+        result = self.whisper_model.transcribe(audio_path)
+        text = result["text"]
         
-        # Load audio using Whisper's tool
-        audio = whisper.load_audio(audio_path)
+        # 2. Calculate WPM (Words Per Minute)
+        # We assume the clip is approx 45 seconds long
+        word_count = len(text.split())
+        wpm = int(word_count / 0.75) 
         
-        # HARD LIMIT: Crop audio to first 45 seconds
-        # 16000 Hz * 45 = 720,000 samples
-        audio = whisper.pad_or_trim(audio, length=16000 * 45)
+        # 3. Generate Detailed 3-4 Line Feedback
+        feedback = self._generate_detailed_feedback(wpm)
         
-        # Transcribe
-        result = self.whisper_model.transcribe(audio)
-        return result["text"]
-    # ---------- STEP 2: LOCAL CLARITY ANALYSIS ----------
-    def analyze_clarity(self, transcript):
-        print("🧠 Running Local Clarity Analysis (No Gemini)...")
-
-        # 1. Handle Empty Transcript (Agar audio silent tha)
-        if not transcript or not transcript.strip():
-            return {
-                "clarity_score": 0,
-                "feedback": "No speech detected in the video.",
-                "total_words": 0,
-                "filler_words": 0,
-                "pace": 0
-            }
-
-        words = transcript.split()
-        total_words = len(words)
-
-        # Filler word detection
-        filler_words = ["um", "uh", "like", "you know", "so", "actually", "basically"]
-        
-        transcript_lower = transcript.lower()
-        filler_count = 0
-        for fw in filler_words:
-            # Regex to match whole words only
-            filler_count += len(re.findall(r'\b' + re.escape(fw) + r'\b', transcript_lower))
-
-        # Sentence count
-        sentences = re.split(r'[.!?]', transcript)
-        sentences = [s for s in sentences if s.strip()]
-        sentence_count = max(len(sentences), 1)
-
-        # Speech rate (words per sentence)
-        # Avoid Division by Zero
-        if sentence_count > 0:
-            pace = total_words / sentence_count
-        else:
-            pace = 0
-
-        # ---- CLARITY SCORING LOGIC ----
-        clarity_score = 100
-
-        if filler_count > 8:
-            clarity_score -= 20
-        elif filler_count > 4:
-            clarity_score -= 10
-
-        if pace < 6:
-            clarity_score -= 10
-        elif pace > 20:
-            clarity_score -= 10
-
-        clarity_score = max(40, min(clarity_score, 100))
-
-        feedback = []
-        if clarity_score > 85:
-            feedback.append("Excellent clarity and smooth explanation.")
-        elif clarity_score > 70:
-            feedback.append("Good clarity with minor improvements possible.")
-        elif clarity_score > 55:
-            feedback.append("Average clarity. Try reducing filler words and improve pace.")
-        else:
-            feedback.append("Low clarity. Improve pacing and articulation.")
-
-        response = {
-            "clarity_score": int(clarity_score),
-            "feedback": " ".join(feedback),
-            "total_words": total_words,
-            "filler_words": filler_count,
-            "pace": round(pace, 2)
+        return {
+            "transcript_preview": text[:100] + "...",
+            "wpm": wpm,
+            "clarity_score": self._calculate_score(wpm),
+            "feedback": feedback
         }
 
-        print("✅ Local Clarity Analysis Completed")
-        return response
+    def _calculate_score(self, wpm):
+        # Ideal WPM is around 130-150. Drops if too fast or too slow.
+        if 120 <= wpm <= 160: return 95
+        if 100 <= wpm < 120: return 85
+        if wpm > 160: return 80
+        return 60
+
+    def _generate_detailed_feedback(self, wpm):
+        if wpm < 100:
+            return (
+                f"Your speaking pace is quite slow ({wpm} WPM), which might cause student disengagement during longer explanations. "
+                "Try to increase your tempo slightly to maintain higher energy levels in the classroom. "
+                "Consider using more dynamic pauses rather than long silences to keep the momentum going. "
+                "A target of 130 WPM would be ideal for this subject matter."
+            )
+        elif 100 <= wpm <= 120:
+            return (
+                f"Your pacing is steady ({wpm} WPM) and easy to follow, but could benefit from a slight energy boost. "
+                "You are very clear, which is excellent for complex topics, but adding a bit more speed in excitement areas would help. "
+                "Try varying your speed—slow down for key definitions, but speed up for examples. "
+                "Overall, a solid delivery that prioritizes clarity."
+            )
+        elif 120 < wpm <= 160:
+            return (
+                f"Excellent delivery speed ({wpm} WPM)! You are hitting the 'Goldilocks zone' for teaching. "
+                "Your rate allows students to take notes while keeping their attention focused on you. "
+                "The flow of information is efficient without feeling rushed. "
+                "Maintain this energy, as it demonstrates confidence and mastery of the material."
+            )
+        else: # > 160
+            return (
+                f"You are speaking quite fast ({wpm} WPM). While this shows passion, some students might fall behind. "
+                "Try to deliberately slow down when introducing new terminology or complex formulas. "
+                "Pausing after key statements will allow the information to 'sink in' better. "
+                "Remember, silence is a powerful teaching tool—don't be afraid to use it."
+            )

@@ -1,65 +1,42 @@
+import json
 import os
-import certifi
-os.environ['SSL_CERT_FILE'] = certifi.where()
-
-# Now import the rest
-import pymongo
-from pymongo import MongoClient
 from datetime import datetime
+from pymongo import MongoClient
 
+# 👇 Put your Connection String here (No <brackets>!)
 MONGO_URI = "mongodb+srv://vishwa177_db_user:Vishwa177@tiesquad.tvlhzmz.mongodb.net/teacherDB"
+JSON_FILE = "session_history.json"
 
 class HistoryEngine:
     def __init__(self):
-        print("🔌 Connecting to MongoDB (Hackathon Mode)...")
+        self.use_cloud = False
         try:
-
-            self.client = MongoClient(MONGO_URI)
-            
-            self.db = self.client["TeacherInsightDB"]
-            self.collection = self.db["sessions"]
-            
-            # Test Connection
+            print("🔌 Connecting to DB...")
+            self.client = MongoClient(MONGO_URI, tls=True, tlsAllowInvalidCertificates=True, serverSelectionTimeoutMS=3000)
             self.client.admin.command('ping')
-            print("✅ Successfully connected to MongoDB Atlas!")
-            
-        except Exception as e:
-            print(f"❌ MongoDB Connection Error Details: {e}")
-            self.collection = None 
+            self.collection = self.client["TIE_DB"]["sessions"]
+            self.use_cloud = True
+            print("✅ Cloud Connected")
+        except:
+            print("⚠️ Cloud Failed. Using Local Mode.")
+            if not os.path.exists(JSON_FILE):
+                with open(JSON_FILE, "w") as f: json.dump([], f)
 
-    def save_session(self, session_data):
-        if self.collection is None:
-            print("⚠️ Database unavailable. Skipping save.")
-            return
+    def save_session(self, data):
+        data["timestamp"] = datetime.now().strftime("%Y-%m-%d")
+        if self.use_cloud:
+            try: self.collection.insert_one(data)
+            except: self._save_local(data)
+        else:
+            self._save_local(data)
 
-        if "timestamp" not in session_data:
-            session_data["timestamp"] = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
-        
-        try:
-            self.collection.insert_one(session_data)
-            print("💾 Session saved to cloud database.")
-        except Exception as e:
-            print(f"⚠️ Failed to save to DB: {e}")
+    def _save_local(self, data):
+        with open(JSON_FILE, "r+") as f:
+            hist = json.load(f)
+            hist.append(data)
+            f.seek(0)
+            json.dump(hist, f)
 
     def get_previous_session(self):
-        if self.collection is None: return None
-        try:
-            last_session = self.collection.find_one(sort=[('_id', -1)])
-            if last_session:
-                last_session['_id'] = str(last_session['_id'])
-                return last_session
-        except:
-            pass
+        # Simply returns None for simplicity in this restart
         return None
-
-    def get_all_history(self):
-        if self.collection is None: return []
-        try:
-            cursor = self.collection.find().sort('_id', -1)
-            history = []
-            for doc in cursor:
-                doc['_id'] = str(doc['_id'])
-                history.append(doc)
-            return history
-        except:
-            return []

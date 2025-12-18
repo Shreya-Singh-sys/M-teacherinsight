@@ -80,10 +80,10 @@
       </div>
       <nav class="flex flex-col gap-2 text-sm">
         <a href="index.html" class="text-indigo-700 bg-indigo-50 px-4 py-3 rounded-r-xl border-l-4 border-indigo-600 shadow-sm font-semibold">Dashboard</a>
-        <a href="home/performance.html" class="nav-item text-slate-500 px-4 py-3 rounded-r-xl" >Performance Overview</a>
-        <a href="home/p_session.html" class="nav-item text-slate-500 px-4 py-3 rounded-r-xl">Class Sessions</a>
+        <a href="frontend/performance.html" class="nav-item text-slate-500 px-4 py-3 rounded-r-xl" >Performance Overview</a>
+        <a href="frontend/Session.html" class="nav-item text-slate-500 px-4 py-3 rounded-r-xl+">Class Sessions</a>
         <a href="#" class="nav-item text-slate-500 px-4 py-3 rounded-r-xl">AI Reports</a>
-        <a href="#" class="nav-item text-slate-500 px-4 py-3 rounded-r-xl">Settings</a>
+        <a href="frontend/settings.html" class="nav-item text-slate-500 px-4 py-3 rounded-r-xl">Settings</a>
       </nav>
       <div class="mt-auto">
         <button class="w-full border-2 border-slate-200 text-slate-600 py-2.5 rounded-xl hover:bg-slate-50 hover:border-slate-300 transition text-sm font-bold">Log Out</button>
@@ -398,7 +398,7 @@
     </main>
   </div>
 
-  <script>
+  <!-- <script>
     let currentAnalysisData = null;
 
     // Set Date Automatically
@@ -488,7 +488,7 @@ async function uploadAndAnalyze() {
         console.log("🚀 Sending request to backend...");
 
         // FIX 1: Use 127.0.0.1 explicitly (Not localhost)
-        const response = await fetch("http://127.0.0.1:8000/analyze", {
+        const response = await fetch("/analyze", {
             method: "POST",
             body: formData
         });
@@ -711,7 +711,7 @@ async function uploadAndAnalyze() {
         const loadingId = appendMessage("System", "Neural Coach thinking...");
 
         try {
-            const response = await fetch("http://localhost:8000/coach", {
+            const response = await fetch("/coach", {
                 method: "POST",
                 headers: { "Content-Type": "application/json" },
                 body: JSON.stringify({
@@ -757,7 +757,7 @@ async function uploadAndAnalyze() {
 
         try {
             // Send current data to backend to format as PDF
-            const response = await fetch("http://localhost:8000/generate_pdf", {
+            const response = await fetch("/generate_pdf", {
                 method: "POST",
                 headers: { "Content-Type": "application/json" },
                 body: JSON.stringify(currentAnalysisData)
@@ -791,7 +791,281 @@ async function uploadAndAnalyze() {
 
     function handleEnter(e) { if (e.key === "Enter") askCoach(); }
     document.getElementById('analyzeBtn').addEventListener('click', uploadAndAnalyze);
-  </script>
+  </script> -->
+  <script>
+    let currentAnalysisData = null;
+
+    // Set Date
+    document.getElementById('currentDateDisplay').innerText = new Date().toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
+
+    // --- 1. CHART SETUP ---
+    const ctx = document.getElementById('myChart');
+    const gradient = ctx.getContext('2d').createLinearGradient(0, 0, 0, 400);
+    gradient.addColorStop(0, 'rgba(79, 70, 229, 0.3)'); 
+    gradient.addColorStop(1, 'rgba(79, 70, 229, 0.0)');
+
+    // ✅ ASSIGN TO GLOBAL VARIABLE 'window.myChart' so we can update it later
+    window.myChart = new Chart(ctx, {
+      type: 'line',
+      data: {
+        labels: ['Start'], 
+        datasets: [{
+          label: 'Performance Index',
+          data: [0], // Placeholder (Will be overwritten by real data)
+          borderColor: '#4f46e5',
+          borderWidth: 4,
+          pointBackgroundColor: '#fff',
+          pointBorderColor: '#4f46e5',
+          pointBorderWidth: 3,
+          pointRadius: 6,
+          pointHoverRadius: 10,
+          fill: true,
+          backgroundColor: gradient,
+          tension: 0.3
+        }]
+      },
+      options: { 
+        responsive: true, maintainAspectRatio: false, plugins: { legend: { display: false } },
+        scales: {
+            y: { grid: { color: '#e2e8f0' }, ticks: { color: '#64748b', font: { weight: 'bold' } }, min: 0, max: 100 },
+            x: { grid: { display: false }, ticks: { color: '#64748b', font: { weight: 'bold' }} }
+        }
+      }
+    });
+
+    // 1.5. Comparison Chart
+    const compCtx = document.getElementById('compChart');
+    const compChart = new Chart(compCtx, {
+      type: 'bar',
+      data: {
+        labels: ['Clarity', 'Interaction', 'Overall'],
+        datasets: [
+          { label: 'Previous Session', data: [0, 0, 0], backgroundColor: '#cbd5e1', borderRadius: 4 },
+          { label: 'Current Session', data: [0, 0, 0], backgroundColor: '#4f46e5', borderRadius: 4 }
+        ]
+      },
+      options: {
+        responsive: true, maintainAspectRatio: false,
+        plugins: { legend: { position: 'bottom' } },
+        scales: { y: { beginAtZero: true, max: 100 } }
+      }
+    });
+
+    async function uploadAndAnalyze() {
+        const fileInput = document.getElementById('videoInput');
+        const file = fileInput.files[0];
+
+        if (!file) {
+            alert("⚠️ No data source detected. Please select a video file.");
+            return;
+        }
+
+        const btn = document.getElementById('analyzeBtn');
+        btn.innerHTML = `<span class="animate-spin">⚙️</span> Processing Data...`;
+        btn.disabled = true;
+        btn.classList.add("opacity-80");
+
+        const formData = new FormData();
+        formData.append("file", fileInput.files[0]);
+
+        try {
+            console.log("🚀 Sending request to backend...");
+            const response = await fetch("/analyze", { method: "POST", body: formData });
+
+            if (!response.ok) throw new Error(`HTTP Error! Status: ${response.status}`);
+
+            const data = await response.json();
+            console.log("✅ Analysis Result Parsed:", data);
+            currentAnalysisData = data;
+
+            // --- UPDATE TEXT UI ---
+            if (data.clarity) {
+                document.getElementById('clarityScore').innerText = (data.clarity.clarity_score || 0) + "%";
+                document.getElementById('clarityFeedback').innerText = data.clarity.feedback || "Analysis complete.";
+            }
+            if (data.interaction) {
+                document.getElementById('interactionRatio').innerText = (data.interaction.interaction_ratio_percent || 0) + "%";
+            }
+            if (data.video) {
+                 document.getElementById('gestureScore').innerText = data.video.gesture_energy_score > 50 ? "High" : "Normal"; 
+                 document.getElementById('eyeContact').innerText = (data.video.eye_contact_score || 0) + "%";
+            }
+            if (data.vocal) {
+                document.getElementById('vocalPitch').innerText = Math.round(data.vocal.avg_pitch || 0) + " Hz";
+                document.getElementById('vocalStatus').innerText = data.vocal.delivery_status || "Normal";
+            }
+
+            let overall = data.overall_score || 0;
+            updateOverallScore(overall);
+            generateAIReport(data, overall);
+            updateComparisonUI(data);
+
+            // --- ✅ THE FIX: CONNECT REAL GRAPH DATA ---
+            if (data.history_scores && window.myChart) {
+                console.log("📈 Updating Graph with:", data.history_scores);
+                
+                // 1. Update the Data Points
+                window.myChart.data.datasets[0].data = data.history_scores;
+                
+                // 2. Update the Labels (Session 1, Session 2...)
+                const labels = data.history_scores.map((_, i) => 
+                    i === data.history_scores.length - 1 ? 'Current' : `Session ${i + 1}`
+                );
+                window.myChart.data.labels = labels;
+                
+                // 3. Render
+                window.myChart.update();
+            }
+
+            appendMessage("System", "Analysis complete. Neural Report generated below.");
+
+        } catch (error) {
+            console.error("🔥 Error:", error);
+            alert("Error: " + error.message);
+        } finally {
+            btn.innerHTML = `<span>⚡</span> Run Analysis`;
+            btn.disabled = false;
+            btn.classList.remove("opacity-80");
+        }
+    }
+
+    function updateComparisonUI(data) {
+        document.getElementById('comparisonSection').classList.remove('hidden');
+        const comp = data.comparison || { overall_diff: 0, clarity_diff: 0, interaction_diff: 0, energy_diff: 0 };
+        
+        const setBadge = (id, val, isPercent=false) => {
+            const el = document.getElementById(id);
+            const badge = document.getElementById(id.replace("comp", "badge"));
+            el.innerText = val + (isPercent ? "%" : "");
+            if(val > 0) { badge.innerText = "▲ " + val; badge.className = "text-xs font-bold px-2 py-0.5 rounded bg-emerald-100 text-emerald-700"; } 
+            else if (val < 0) { badge.innerText = "▼ " + val; badge.className = "text-xs font-bold px-2 py-0.5 rounded bg-rose-100 text-rose-700"; } 
+            else { badge.innerText = "-"; badge.className = "text-xs font-bold px-2 py-0.5 rounded bg-slate-200 text-slate-500"; }
+        };
+
+        setBadge("compOverall", comp.overall_diff);
+        setBadge("compClarity", comp.clarity_diff, true);
+        setBadge("compInteraction", comp.interaction_diff, true);
+        setBadge("compEnergy", comp.energy_diff);
+
+        // Update Bar Chart
+        const currClarity = data.clarity.clarity_score || 0;
+        const prevClarity = currClarity - comp.clarity_diff;
+        const currInter = data.interaction.interaction_ratio_percent || 0;
+        const prevInter = currInter - comp.interaction_diff;
+        const currOverall = data.overall_score || 0;
+        const prevOverall = currOverall - comp.overall_diff;
+
+        compChart.data.datasets[0].data = [prevClarity, prevInter, prevOverall];
+        compChart.data.datasets[1].data = [currClarity, currInter, currOverall];
+        compChart.update();
+    }
+
+    function updateOverallScore(score) {
+        const textElement = document.getElementById('overallScoreText');
+        const circlePath = document.getElementById('overallCirclePath');
+        const comment = document.getElementById('overallComment');
+        let current = 0;
+        const timer = setInterval(() => {
+            current += 2;
+            if (current >= score) { current = score; clearInterval(timer); }
+            textElement.textContent = Math.round(current); 
+        }, 20);
+        setTimeout(() => {
+             circlePath.setAttribute("stroke-dasharray", `${score}, 100`);
+             circlePath.style.stroke = "#ffffff"; 
+        }, 100);
+        if(score > 80) comment.textContent = "EXCELLENT PERFORMANCE 🚀";
+        else if(score > 60) comment.textContent = "GOOD PROGRESS 📈";
+        else comment.textContent = "NEEDS OPTIMIZATION ⚠️";
+    }
+    
+    function generateAIReport(data, overall) {
+        const strengthsList = document.getElementById('aiStrengths');
+        const improvementsList = document.getElementById('aiImprovements');
+        const actionPlan = document.getElementById('aiActionPlan');
+        strengthsList.innerHTML = ''; improvementsList.innerHTML = '';
+
+        if(data.clarity && data.clarity.clarity_score > 75) addListItem(strengthsList, `High Clarity detected (${data.clarity.clarity_score}%)`, 'text-emerald-500');
+        else if(data.clarity) addListItem(improvementsList, `Optimize Clarity (Currently ${data.clarity.clarity_score}%)`, 'text-rose-500');
+
+        if(data.interaction && data.interaction.interaction_ratio_percent > 20) addListItem(strengthsList, "Good class interaction ratio.", 'text-emerald-500');
+        else addListItem(improvementsList, "Increase student participation.", 'text-rose-500');
+
+        if(overall > 80) actionPlan.innerText = "Current protocols effective. Maintain current delivery style.";
+        else actionPlan.innerText = "Primary focus: Increase student interaction loops for next session.";
+    }
+
+    function addListItem(parent, text, colorClass) {
+        const li = document.createElement('li');
+        li.className = "flex items-start gap-2";
+        li.innerHTML = `<span class="${colorClass} mt-0.5 font-bold">>></span><span>${text}</span>`;
+        parent.appendChild(li);
+    }
+
+    async function askCoach() {
+        const inputField = document.getElementById('chatInput');
+        const userQuery = inputField.value.trim();
+        if (!userQuery) return;
+        if(!currentAnalysisData) { alert("⚠️ Please analyze a video first!"); return; }
+
+        appendMessage("User", userQuery);
+        inputField.value = ""; 
+        const loadingId = appendMessage("System", "Neural Coach thinking...");
+
+        try {
+            const response = await fetch("/coach", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ analysis_data: currentAnalysisData, user_query: userQuery })
+            });
+            const resData = await response.json();
+            document.getElementById(loadingId).remove();
+            appendMessage("System", resData.reply);
+        } catch(e) {
+            console.error(e);
+            document.getElementById(loadingId).innerText = "❌ Connection Error";
+        }
+    }
+
+    function appendMessage(sender, text) {
+        const chatBox = document.getElementById('chatHistory');
+        const msgDiv = document.createElement("div");
+        msgDiv.id = "msg-" + Date.now();
+        msgDiv.className = sender === "User" 
+            ? "self-end bg-gradient-to-r from-indigo-600 to-sky-500 text-white p-4 rounded-2xl rounded-tr-none shadow-md text-sm max-w-[80%] font-medium"
+            : "self-start bg-white border-2 border-slate-100 text-slate-700 p-4 rounded-2xl rounded-tl-none shadow-sm text-sm max-w-[80%] font-medium";
+        msgDiv.innerText = text;
+        chatBox.appendChild(msgDiv);
+        chatBox.scrollTop = chatBox.scrollHeight;
+        return msgDiv.id;
+    }
+
+    async function downloadReport() {
+        if (!currentAnalysisData) { alert("⚠️ Please analyze a video first."); return; }
+        const btn = document.querySelector('button[onclick="downloadReport()"]');
+        const originalText = btn.innerHTML;
+        btn.innerHTML = "⏳ Downloading...";
+        btn.disabled = true;
+        try {
+            const response = await fetch("/generate_pdf", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify(currentAnalysisData)
+            });
+            if (!response.ok) throw new Error("PDF Failed");
+            const blob = await response.blob();
+            const url = window.URL.createObjectURL(blob);
+            const a = document.createElement("a");
+            a.href = url; a.download = "TIE_Report.pdf";
+            document.body.appendChild(a); a.click(); document.body.removeChild(a);
+            window.URL.revokeObjectURL(url);
+        } catch (error) { console.error(error); alert("❌ PDF Error"); } 
+        finally { btn.innerHTML = originalText; btn.disabled = false; }
+    }
+
+    function handleEnter(e) { if (e.key === "Enter") askCoach(); }
+    document.getElementById('analyzeBtn').addEventListener('click', uploadAndAnalyze);
+  </script> 
 
 </body>
 </html>
