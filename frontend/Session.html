@@ -55,7 +55,7 @@
         </div>
     
         <nav class="flex flex-col gap-2 text-sm">
-            <a href="/" class="nav-item text-slate-500 px-4 py-3 rounded-r-xl">
+            <a href="dashboard.html" class="nav-item text-slate-500 px-4 py-3 rounded-r-xl">
                 Dashboard
             </a>
             
@@ -64,8 +64,6 @@
             <a href="Session.html" class="text-indigo-700 bg-indigo-50 px-4 py-3 rounded-r-xl border-l-4 border-indigo-600 shadow-sm font-semibold">
                 Class Sessions
             </a>
-
-            <a href="#" class="nav-item text-slate-500 px-4 py-3 rounded-r-xl">AI Reports</a>
             <a href="settings.html" class="nav-item text-slate-500 px-4 py-3 rounded-r-xl">Settings</a>
         </nav>
     
@@ -126,7 +124,7 @@
                             </tr>
                         </thead>
 
-                        <tbody class="text-sm font-semibold text-slate-600">
+                        <tbody id="sessionTableBody" class="text-sm font-semibold text-slate-600">
                             
                             <tr class="group border-b border-gray-100/60 hover:bg-white/50 transition-colors">
                                 <td class="py-6 text-center"><input type="checkbox" class="w-4 h-4 rounded border-gray-300 text-primary focus:ring-primary"></td>
@@ -231,8 +229,20 @@
                         </tbody>
                     </table>
                 </div>
-
                 <div class="flex justify-between items-center mt-auto pt-6 border-t border-gray-100/80 text-sm text-graytext/80">
+                    <p id="paginationText">Loading count...</p>
+                    <div class="flex gap-2">
+                        <button id="btnPrev" onclick="prevPage()" class="w-8 h-8 rounded-lg border border-gray-200/80 hover:bg-white flex items-center justify-center transition">
+                            <i class="fa-solid fa-chevron-left"></i>
+                        </button>
+                        <button id="btnPageNum" class="w-8 h-8 rounded-lg bg-primary text-white font-bold shadow-md">1</button>
+                        <button id="btnNext" onclick="nextPage()" class="w-8 h-8 rounded-lg border border-gray-200/80 hover:bg-white flex items-center justify-center transition">
+                            <i class="fa-solid fa-chevron-right"></i>
+                        </button>
+                    </div>
+                </div>
+
+                <!-- <div class="flex justify-between items-center mt-auto pt-6 border-t border-gray-100/80 text-sm text-graytext/80">
                     <p>Showing <span class="font-bold text-navy">5</span> of <span class="font-bold text-navy">24</span> sessions</p>
                     <div class="flex gap-2">
                         <button class="w-8 h-8 rounded-lg border border-gray-200/80 hover:bg-white flex items-center justify-center transition"><i class="fa-solid fa-chevron-left"></i></button>
@@ -241,12 +251,138 @@
                         <button class="w-8 h-8 rounded-lg border border-gray-200/80 hover:bg-white flex items-center justify-center transition">3</button>
                         <button class="w-8 h-8 rounded-lg border border-gray-200/80 hover:bg-white flex items-center justify-center transition"><i class="fa-solid fa-chevron-right"></i></button>
                     </div>
-                </div>
+                </div> -->
 
             </div>
 
         </main>
     </div>
-    
+    <script>
+    // Global Variables for Pagination
+    let allHistory = [];
+    let currentPage = 1;
+    const itemsPerPage = 5;
+
+    async function loadHistory() {
+        const tbody = document.getElementById('sessionTableBody');
+        tbody.innerHTML = `<tr><td colspan="9" class="py-6 text-center text-gray-400">Loading your sessions...</td></tr>`;
+
+        try {
+            // 1. Fetch Data Once
+            const response = await fetch("http://127.0.0.1:8000/api/history");
+            allHistory = await response.json();
+
+            if (!allHistory || allHistory.length === 0) {
+                tbody.innerHTML = `<tr><td colspan="9" class="py-6 text-center text-gray-500">No sessions found. Go to Dashboard to upload a video!</td></tr>`;
+                updatePaginationText(0, 0, 0);
+                return;
+            }
+
+            // 2. Render First Page
+            renderTable(currentPage);
+
+        } catch (error) {
+            console.error(error);
+            tbody.innerHTML = `<tr><td colspan="9" class="py-6 text-center text-red-500">Error connecting to server. Is backend running?</td></tr>`;
+        }
+    }
+
+    // Function to Render Specific Page
+    function renderTable(page) {
+        const tbody = document.getElementById('sessionTableBody');
+        tbody.innerHTML = ""; // Clear current rows
+
+        // Calculate Start & End Index
+        const start = (page - 1) * itemsPerPage;
+        const end = start + itemsPerPage;
+        const paginatedItems = allHistory.slice(start, end);
+
+        // Generate Rows for Current Page
+        paginatedItems.forEach((session, index) => {
+            // Calculate absolute index for ID
+            const absoluteIndex = start + index;
+            const sessId = "#SESS-" + (1000 + (allHistory.length - absoluteIndex));
+            const date = session.timestamp || new Date().toLocaleDateString();
+            const subject = "General"; 
+            const clarity = session.clarity?.clarity_score || 0;
+            const engage = session.interaction?.interaction_ratio_percent || 0;
+            const overall = session.overall_score || 0;
+
+            let statusHtml = '';
+            if (overall >= 80) {
+                statusHtml = `<div class="inline-flex items-center justify-center w-32 py-2 rounded-full bg-emerald-100 text-emerald-600 font-bold text-xs gap-2"><i class="fa-solid fa-circle-check"></i> Excellent</div>`;
+            } else if (overall >= 60) {
+                statusHtml = `<div class="inline-flex items-center justify-center w-32 py-2 rounded-full bg-emerald-50 text-emerald-500 font-bold text-xs gap-2"><i class="fa-solid fa-check"></i> Good</div>`;
+            } else {
+                statusHtml = `<div class="inline-flex items-center justify-center w-32 py-2 rounded-full bg-orange-100 text-orange-500 font-bold text-xs gap-2"><i class="fa-solid fa-circle-exclamation"></i> Average</div>`;
+            }
+
+            const row = `
+            <tr class="group border-b border-gray-100/60 hover:bg-white/50 transition-colors">
+                <td class="py-6 text-center"><input type="checkbox" class="w-4 h-4 rounded border-gray-300 text-primary focus:ring-primary"></td>
+                <td class="py-6 text-primary font-bold text-center">${sessId}</td>
+                <td class="py-6 text-slate-500 text-center">${date}</td>
+                <td class="py-6 text-center text-navy font-bold">${subject}</td>
+                <td class="py-6 text-center">${clarity}%</td>
+                <td class="py-6 text-center">${engage}%</td>
+                <td class="py-6 text-center">${overall}%</td>
+                <td class="py-6 text-center">${statusHtml}</td>
+                <td class="py-6 text-center">
+                    <button class="flex items-center justify-center gap-2 text-graytext hover:text-primary font-bold text-xs border border-gray-200 hover:border-primary px-4 py-2 rounded-lg transition-all mx-auto bg-white">
+                        <i class="fa-solid fa-download"></i> Report
+                    </button>
+                </td>
+            </tr>`;
+            tbody.innerHTML += row;
+        });
+
+        // Update Text & Buttons
+        updatePaginationText(start + 1, Math.min(end, allHistory.length), allHistory.length);
+        updateButtons();
+    }
+
+    function updatePaginationText(start, end, total) {
+        // Find the "Showing X of Y" paragraph and update it
+        // Ensure you add id="paginationText" to your <p> tag in HTML step below
+        const textEl = document.getElementById('paginationText');
+        if(textEl) {
+            textEl.innerHTML = `Showing <span class="font-bold text-navy">${start}-${end}</span> of <span class="font-bold text-navy">${total}</span> sessions`;
+        }
+    }
+
+    function updateButtons() {
+        const totalPages = Math.ceil(allHistory.length / itemsPerPage);
+        
+        const prevBtn = document.getElementById('btnPrev');
+        const nextBtn = document.getElementById('btnNext');
+        const pageNum = document.getElementById('btnPageNum');
+
+        if(prevBtn) prevBtn.disabled = currentPage === 1;
+        if(nextBtn) nextBtn.disabled = currentPage === totalPages;
+        if(pageNum) pageNum.innerText = currentPage;
+        
+        // Visual Styling for Disabled
+        prevBtn.style.opacity = currentPage === 1 ? "0.5" : "1";
+        nextBtn.style.opacity = currentPage === totalPages ? "0.5" : "1";
+    }
+
+    // Button Actions
+    function nextPage() {
+        const totalPages = Math.ceil(allHistory.length / itemsPerPage);
+        if (currentPage < totalPages) {
+            currentPage++;
+            renderTable(currentPage);
+        }
+    }
+
+    function prevPage() {
+        if (currentPage > 1) {
+            currentPage--;
+            renderTable(currentPage);
+        }
+    }
+
+    window.onload = loadHistory;
+    </script>
 </body>
 </html>

@@ -1,0 +1,369 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sign In - TIE Hacks</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <style>
+        /* --- 1. Variables & Reset --- */
+        :root {
+            --primary-teal: #0d9488;  /* teal-600 */
+            --primary-blue: #2563eb;  /* blue-600 */
+            --teal-dark: #0f766e;     /* teal-700 */
+            --blue-dark: #1d4ed8;     /* blue-700 */
+            --teal-focus: #14b8a6;    /* teal-500 ring color */
+            
+            --gray-50: #f9fafb;
+            --gray-200: #e5e7eb;
+            --gray-300: #d1d5db;
+            --gray-400: #9ca3af;
+            --gray-600: #4b5563;
+            --gray-700: #374151;
+            --gray-800: #1f2937;
+            --white: #ffffff;
+            --red-50: #fef2f2;
+            --red-200: #fecaca;
+            --red-700: #b91c1c;
+
+            /* Gradients */
+            --gradient-bg: linear-gradient(135deg, #f0fdfa 0%, #ffffff 50%, #eff6ff 100%); /* teal-50 via white to blue-50 */
+            --gradient-primary: linear-gradient(to right, var(--primary-teal), var(--primary-blue));
+            --gradient-hover: linear-gradient(to right, var(--teal-dark), var(--blue-dark));
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background: var(--gradient-bg);
+            color: var(--gray-800);
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 1rem;
+        }
+
+        a { text-decoration: none; color: inherit; transition: all 0.2s; }
+
+        /* --- 2. Login Container --- */
+        .login-wrapper {
+            width: 100%;
+            max-width: 28rem; /* max-w-md */
+        }
+
+        .login-card {
+            background: var(--white);
+            border-radius: 1rem; /* rounded-2xl */
+            box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04); /* shadow-xl */
+            overflow: hidden;
+        }
+
+        /* --- 3. Header Section (Teal/Blue Gradient) --- */
+        .card-header {
+            background: var(--gradient-primary);
+            padding: 2rem; /* p-8 */
+            color: var(--white);
+            text-align: center;
+        }
+
+        .header-icon-wrapper {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-bottom: 1rem;
+        }
+
+        .header-icon-bg {
+            background-color: rgba(255, 255, 255, 0.2); /* bg-white/20 */
+            backdrop-filter: blur(4px);
+            border-radius: 0.75rem; /* rounded-xl */
+            padding: 0.75rem; /* p-3 */
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .header-title {
+            font-size: 1.875rem; /* text-3xl */
+            font-weight: 700;
+            margin-bottom: 0.5rem;
+        }
+
+        .header-subtitle {
+            color: #ccfbf1; /* text-teal-50 */
+            font-size: 1rem;
+        }
+
+        /* --- 4. Form Section --- */
+        .card-body {
+            padding: 2rem; /* p-8 */
+        }
+
+        .form-title {
+            font-size: 1.5rem; /* text-2xl */
+            font-weight: 700;
+            color: var(--gray-800);
+            margin-bottom: 1.5rem;
+        }
+
+        /* Error Message (Hidden by default, can be toggled via JS) */
+        .error-message {
+            background-color: var(--red-50);
+            border: 1px solid var(--red-200);
+            color: var(--red-700);
+            padding: 0.75rem 1rem;
+            border-radius: 0.5rem;
+            margin-bottom: 1.5rem;
+            font-size: 0.9rem;
+            display: none; /* Set to block to show error */
+        }
+
+        .form-group {
+            margin-bottom: 1.5rem; /* space-y-6 equivalent */
+        }
+
+        .form-label {
+            display: block;
+            font-size: 0.875rem; /* text-sm */
+            font-weight: 500;
+            color: var(--gray-700);
+            margin-bottom: 0.5rem;
+        }
+
+        .input-wrapper {
+            position: relative;
+        }
+
+        .input-icon {
+            position: absolute;
+            top: 0; bottom: 0; left: 0;
+            padding-left: 0.75rem; /* pl-3 */
+            display: flex;
+            align-items: center;
+            pointer-events: none;
+            color: var(--gray-400);
+        }
+
+        .form-input {
+            display: block;
+            width: 100%;
+            padding: 0.75rem 0.75rem 0.75rem 2.5rem; /* pl-10 (2.5rem) */
+            border: 1px solid var(--gray-300);
+            border-radius: 0.5rem; /* rounded-lg */
+            font-size: 1rem;
+            transition: all 0.2s;
+            outline: none;
+        }
+
+        .form-input:focus {
+            border-color: transparent;
+            box-shadow: 0 0 0 2px var(--teal-focus); /* ring-2 */
+        }
+
+        /* Submit Button */
+        .btn-submit {
+            width: 100%;
+            background: var(--gradient-primary);
+            color: var(--white);
+            padding: 0.75rem 1rem;
+            border: none;
+            border-radius: 0.5rem;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.2s;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.5rem;
+            font-size: 1rem;
+        }
+
+        .btn-submit:hover {
+            background: var(--gradient-hover);
+        }
+
+        .btn-submit:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+
+        /* --- 5. Footer Links --- */
+        .card-footer {
+            margin-top: 1.5rem;
+            text-align: center;
+        }
+
+        .footer-text {
+            font-size: 0.875rem; /* text-sm */
+            color: var(--gray-600);
+            margin-bottom: 0.75rem;
+        }
+
+        .link-highlight {
+            color: var(--primary-teal);
+            font-weight: 500;
+        }
+        .link-highlight:hover { color: var(--teal-dark); }
+
+        .link-back {
+            display: block;
+            font-size: 0.875rem;
+            color: var(--gray-600);
+        }
+        .link-back:hover { color: var(--primary-teal); }
+
+    </style>
+</head>
+<body>
+
+    <div class="login-wrapper">
+        <div class="login-card">
+            
+            <div class="card-header">
+                <div class="header-icon-wrapper">
+                    <div class="header-icon-bg">
+                        <i class="fa-solid fa-book-open" style="font-size: 2rem;"></i>
+                    </div>
+                </div>
+                <h1 class="header-title">Welcome to TIE Hacks</h1>
+                <p class="header-subtitle">A Coach, Not a Monitor</p>
+            </div>
+
+            <div class="card-body">
+                <h2 class="form-title">Sign In</h2>
+
+                <div id="error-alert" class="error-message">
+                    Invalid email or password. Please try again.
+                </div>
+
+                <form id="loginForm" action="#" method="POST">
+                    
+                    <div class="form-group">
+                        <label for="email" class="form-label">Email Address</label>
+                        <div class="input-wrapper">
+                            <div class="input-icon">
+                                <i class="fa-solid fa-envelope"></i>
+                            </div>
+                            <input 
+                                id="email" 
+                                type="email" 
+                                name="email"
+                                required 
+                                class="form-input" 
+                                placeholder="you@example.com"
+                            >
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="password" class="form-label">Password</label>
+                        <div class="input-wrapper">
+                            <div class="input-icon">
+                                <i class="fa-solid fa-lock"></i>
+                            </div>
+                            <input 
+                                id="password" 
+                                type="password" 
+                                name="password"
+                                required 
+                                class="form-input" 
+                                placeholder="Enter your password"
+                            >
+                        </div>
+                    </div>
+
+                    <button type="submit" class="btn-submit" id="submitBtn">
+                        <i class="fa-solid fa-right-to-bracket"></i>
+                        <span>Sign In</span>
+                    </button>
+
+                </form>
+
+                <div class="card-footer">
+                    <p class="footer-text">
+                        Don't have an account? 
+                        <a href="frontend/register.html" class="link-highlight">Sign up for free</a>
+                    </p>
+                    <a href="/" class="link-back">Back to Home</a>
+                </div>
+            </div>
+
+        </div>
+    </div>
+
+    <script>
+        const form = document.getElementById('loginForm');
+        const emailInput = document.getElementById('email');
+        const passwordInput = document.getElementById('password');
+        const errorAlert = document.getElementById('error-alert');
+        const btn = document.getElementById('submitBtn');
+        const btnText = btn.querySelector('span');
+        const btnIcon = btn.querySelector('i');
+
+        form.addEventListener('submit', async function(e) {
+            e.preventDefault();
+            errorAlert.style.display = 'none';
+
+            // 1. Basic Validation
+            if(!emailInput.value || !passwordInput.value) {
+                errorAlert.textContent = "Please enter both email and password.";
+                errorAlert.style.display = 'block';
+                return;
+            }
+
+            // 2. Set Loading State
+            btn.disabled = true;
+            btnText.textContent = "Verifying...";
+            btnIcon.className = "fa-solid fa-circle-notch fa-spin";
+
+            try {
+                // 3. Send Credentials to Backend
+                const response = await fetch("http://127.0.0.1:8000/api/login", {
+                    method: "POST",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify({
+                        email: emailInput.value,
+                        password: passwordInput.value
+                    })
+                });
+
+                const data = await response.json();
+
+                // 4. Handle Response
+                if (data.status === "success") {
+                    // ✅ SUCCESS: SAVE USER TO BROWSER STORAGE
+                    // This acts like a cookie so other pages know who is logged in
+                    localStorage.setItem("tieUser", JSON.stringify(data.user));
+
+                    btnText.textContent = "Success!";
+                    btnIcon.className = "fa-solid fa-check";
+                    btn.style.background = "#05CD99"; // Green
+
+                    setTimeout(() => {
+                        window.location.href = "/dashboard"; // Redirect to Dashboard
+                    }, 500);
+
+                } else {
+                    // ❌ ERROR: Wrong password or user not found
+                    throw new Error(data.message);
+                }
+
+            } catch (error) {
+                console.error(error);
+                errorAlert.textContent = error.message || "Server connection failed.";
+                errorAlert.style.display = 'block';
+
+                // Reset Button
+                btn.disabled = false;
+                btnText.textContent = "Sign In";
+                btnIcon.className = "fa-solid fa-right-to-bracket";
+                btn.style.background = ""; // Reset color
+            }
+        });
+    </script>
+</body>
+</html>

@@ -1,0 +1,315 @@
+<!DOCTYPE html>
+<html lang="en" class="scroll-smooth">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>About TIE Hacks | AI Teacher Coach</title>
+    
+    <script src="https://cdn.tailwindcss.com"></script>
+    
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    
+    <script src="https://unpkg.com/lucide@latest"></script>
+
+    <style>
+        body {
+            font-family: 'Plus Jakarta Sans', sans-serif;
+        }
+
+        /* Custom Animations */
+        @keyframes fade-in-up {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .animate-fade-up {
+            animation: fade-in-up 0.8s ease-out forwards;
+        }
+
+        .delay-100 { animation-delay: 0.1s; }
+        .delay-200 { animation-delay: 0.2s; }
+        .delay-300 { animation-delay: 0.3s; }
+
+        /* Abstract Blob Animation */
+        @keyframes float {
+            0% { transform: translate(0px, 0px) scale(1); }
+            33% { transform: translate(30px, -50px) scale(1.1); }
+            66% { transform: translate(-20px, 20px) scale(0.9); }
+            100% { transform: translate(0px, 0px) scale(1); }
+        }
+
+        .blob {
+            animation: float 7s infinite;
+        }
+    </style>
+</head>
+<body class="bg-white text-slate-900 selection:bg-teal-100 selection:text-teal-900 overflow-x-hidden">
+
+    <nav class="fixed top-0 w-full bg-white/80 backdrop-blur-md z-50 border-b border-gray-100 transition-all duration-300">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex justify-between items-center h-20">
+                <a href="#" class="flex items-center gap-3 group">
+                    <div class="bg-gradient-to-tr from-teal-600 to-blue-600 p-2.5 rounded-xl shadow-lg shadow-teal-500/20 transition-transform group-hover:scale-105">
+                        <i data-lucide="book-open" class="w-6 h-6 text-white"></i>
+                    </div>
+                    <span class="text-xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-gray-900 to-gray-600">TIE Hacks</span>
+                </a>
+                
+                <div class="hidden md:flex items-center gap-8">
+                    <a href="#" class="text-sm font-medium text-gray-600 hover:text-teal-600 transition flex items-center gap-2">
+                        <i data-lucide="arrow-left" class="w-4 h-4"></i>
+                        Back to Home
+                    </a>
+                    <a href="#" class="text-sm font-medium text-gray-600 hover:text-teal-600 transition">
+                        Sign In
+                    </a>
+                    <a href="#" class="bg-gray-900 text-white px-5 py-2.5 rounded-full text-sm font-semibold hover:bg-gray-800 hover:shadow-lg transition transform hover:-translate-y-0.5">
+                        Get Started
+                    </a>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <section class="relative pt-40 pb-28 px-4 sm:px-6 lg:px-8 overflow-hidden">
+        <div class="absolute top-0 left-0 w-full h-full overflow-hidden -z-10">
+            <div class="absolute top-20 left-10 w-72 h-72 bg-teal-100 rounded-full mix-blend-multiply filter blur-3xl opacity-70 blob"></div>
+            <div class="absolute top-40 right-10 w-72 h-72 bg-blue-100 rounded-full mix-blend-multiply filter blur-3xl opacity-70 blob" style="animation-delay: 2s"></div>
+            <div class="absolute -bottom-8 left-1/2 w-72 h-72 bg-purple-100 rounded-full mix-blend-multiply filter blur-3xl opacity-70 blob" style="animation-delay: 4s"></div>
+        </div>
+
+        <div class="max-w-7xl mx-auto text-center animate-fade-up">
+            <div class="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-teal-50 border border-teal-100 text-teal-700 text-sm font-semibold mb-8">
+                <i data-lucide="sparkles" class="w-4 h-4"></i>
+                <span>Reimagining Teacher Growth</span>
+            </div>
+            
+            <h1 class="text-5xl md:text-7xl font-extrabold tracking-tight text-gray-900 mb-8 leading-tight">
+                About TIE Hacks<br />
+                <span class="bg-clip-text text-transparent bg-gradient-to-r from-teal-600 to-blue-600">A Coach, Not a Monitor</span>
+            </h1>
+            
+            <p class="text-xl md:text-2xl text-gray-600 max-w-3xl mx-auto leading-relaxed font-light">
+                Teacher Insight Engine is an AI Co-Pilot for educators, providing <span class="font-medium text-gray-900">100% private</span>, objective, and data-driven insights for self-growth.
+            </p>
+        </div>
+    </section>
+
+    <section class="py-24 px-4 sm:px-6 lg:px-8 bg-white relative">
+        <div class="max-w-7xl mx-auto">
+            <div class="max-w-3xl mx-auto mb-20 text-center animate-fade-up delay-100">
+                <h2 class="text-4xl font-bold text-gray-900 mb-6">Our Mission</h2>
+                <p class="text-lg text-gray-600 leading-relaxed">
+                    We believe every teacher deserves the opportunity to grow without the fear of surveillance. 
+                    TIE is designed to be a personal coach, helping educators understand their strengths through multimodal AI analysis.
+                </p>
+            </div>
+
+            <div class="grid md:grid-cols-2 gap-8">
+                <div class="group bg-white p-10 rounded-3xl border border-gray-100 shadow-[0_8px_30px_rgb(0,0,0,0.04)] hover:shadow-[0_8px_30px_rgb(0,0,0,0.12)] transition-all duration-300 hover:-translate-y-1 animate-fade-up delay-100">
+                    <div class="w-14 h-14 bg-blue-50 rounded-2xl flex items-center justify-center mb-6 group-hover:scale-110 transition-transform">
+                        <i data-lucide="shield" class="w-7 h-7 text-blue-600"></i>
+                    </div>
+                    <h3 class="text-2xl font-bold text-gray-900 mb-3">Ethical AI First</h3>
+                    <p class="text-gray-600 leading-relaxed">TIE is fundamentally designed as an ethical AI tool. It is NOT a surveillance system. Teachers choose when to upload recordings after class.</p>
+                </div>
+
+                <div class="group bg-white p-10 rounded-3xl border border-gray-100 shadow-[0_8px_30px_rgb(0,0,0,0.04)] hover:shadow-[0_8px_30px_rgb(0,0,0,0.12)] transition-all duration-300 hover:-translate-y-1 animate-fade-up delay-200">
+                    <div class="w-14 h-14 bg-teal-50 rounded-2xl flex items-center justify-center mb-6 group-hover:scale-110 transition-transform">
+                        <i data-lucide="lock" class="w-7 h-7 text-teal-600"></i>
+                    </div>
+                    <h3 class="text-2xl font-bold text-gray-900 mb-3">100% Private</h3>
+                    <p class="text-gray-600 leading-relaxed">Only you can see your reports. All data is encrypted, and no raw video is stored long-term, only anonymized embeddings.</p>
+                </div>
+
+                <div class="group bg-white p-10 rounded-3xl border border-gray-100 shadow-[0_8px_30px_rgb(0,0,0,0.04)] hover:shadow-[0_8px_30px_rgb(0,0,0,0.12)] transition-all duration-300 hover:-translate-y-1 animate-fade-up delay-100">
+                    <div class="w-14 h-14 bg-purple-50 rounded-2xl flex items-center justify-center mb-6 group-hover:scale-110 transition-transform">
+                        <i data-lucide="target" class="w-7 h-7 text-purple-600"></i>
+                    </div>
+                    <h3 class="text-2xl font-bold text-gray-900 mb-3">Objective & Fair</h3>
+                    <p class="text-gray-600 leading-relaxed">Our AI ensures fairness across accents, teaching styles, and backgrounds. Every teacher gets unbiased, actionable feedback.</p>
+                </div>
+
+                <div class="group bg-white p-10 rounded-3xl border border-gray-100 shadow-[0_8px_30px_rgb(0,0,0,0.04)] hover:shadow-[0_8px_30px_rgb(0,0,0,0.12)] transition-all duration-300 hover:-translate-y-1 animate-fade-up delay-200">
+                    <div class="w-14 h-14 bg-rose-50 rounded-2xl flex items-center justify-center mb-6 group-hover:scale-110 transition-transform">
+                        <i data-lucide="heart" class="w-7 h-7 text-rose-600"></i>
+                    </div>
+                    <h3 class="text-2xl font-bold text-gray-900 mb-3">Growth Focused</h3>
+                    <p class="text-gray-600 leading-relaxed">TIE is a coach for self-improvement, not a tool for judgment. We help teachers move beyond test scores toward meaningful growth.</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <section class="py-24 px-4 sm:px-6 lg:px-8 bg-gray-50">
+        <div class="max-w-7xl mx-auto">
+            <div class="text-center mb-16 animate-fade-up">
+                <div class="inline-block p-3 rounded-2xl bg-white shadow-sm mb-6">
+                    <i data-lucide="brain-circuit" class="w-10 h-10 text-teal-600"></i>
+                </div>
+                <h2 class="text-4xl font-bold text-gray-900 mb-4">How TIE Works</h2>
+                <p class="text-xl text-gray-600">Multimodal AI analyzing four key teaching dimensions</p>
+            </div>
+
+            <div class="grid md:grid-cols-2 gap-8 max-w-5xl mx-auto">
+                <div class="bg-white p-8 rounded-2xl shadow-sm border-l-4 border-teal-500 hover:shadow-xl transition-all duration-300">
+                    <div class="flex justify-between items-start mb-4">
+                        <h3 class="text-xl font-bold text-gray-900">1. Visual Analysis</h3>
+                        <i data-lucide="video" class="w-5 h-5 text-teal-500"></i>
+                    </div>
+                    <p class="text-gray-600 mb-6 text-sm leading-relaxed">MediaPipe analyzes facial expressions and body language to understand engagement and delivery.</p>
+                    <div class="bg-teal-50/50 p-3 rounded-lg border border-teal-100">
+                        <p class="text-xs font-semibold text-teal-800 flex items-center gap-2">
+                            <i data-lucide="check-circle-2" class="w-3 h-3"></i> Tracks 478 facial landmarks
+                        </p>
+                    </div>
+                </div>
+
+                <div class="bg-white p-8 rounded-2xl shadow-sm border-l-4 border-blue-500 hover:shadow-xl transition-all duration-300">
+                    <div class="flex justify-between items-start mb-4">
+                        <h3 class="text-xl font-bold text-gray-900">2. Content Analysis</h3>
+                        <i data-lucide="file-text" class="w-5 h-5 text-blue-500"></i>
+                    </div>
+                    <p class="text-gray-600 mb-6 text-sm leading-relaxed">Whisper transcribes speech, then Gemini AI analyzes clarity, jargon, fillers, and structure.</p>
+                    <div class="bg-blue-50/50 p-3 rounded-lg border border-blue-100">
+                        <p class="text-xs font-semibold text-blue-800 flex items-center gap-2">
+                            <i data-lucide="check-circle-2" class="w-3 h-3"></i> Teaching clarity score
+                        </p>
+                    </div>
+                </div>
+
+                <div class="bg-white p-8 rounded-2xl shadow-sm border-l-4 border-indigo-500 hover:shadow-xl transition-all duration-300">
+                    <div class="flex justify-between items-start mb-4">
+                        <h3 class="text-xl font-bold text-gray-900">3. Vocal Analysis</h3>
+                        <i data-lucide="mic" class="w-5 h-5 text-indigo-500"></i>
+                    </div>
+                    <p class="text-gray-600 mb-6 text-sm leading-relaxed">LibROSA analyzes voice modification including tone, pace, energy, and pitch variance.</p>
+                    <div class="bg-indigo-50/50 p-3 rounded-lg border border-indigo-100">
+                        <p class="text-xs font-semibold text-indigo-800 flex items-center gap-2">
+                            <i data-lucide="check-circle-2" class="w-3 h-3"></i> Modulation & pacing insights
+                        </p>
+                    </div>
+                </div>
+
+                <div class="bg-white p-8 rounded-2xl shadow-sm border-l-4 border-rose-500 hover:shadow-xl transition-all duration-300">
+                    <div class="flex justify-between items-start mb-4">
+                        <h3 class="text-xl font-bold text-gray-900">4. Interaction Analysis</h3>
+                        <i data-lucide="users-2" class="w-5 h-5 text-rose-500"></i>
+                    </div>
+                    <p class="text-gray-600 mb-6 text-sm leading-relaxed">Pyannote.audio performs speaker diarization to track student talk-time ratio.</p>
+                    <div class="bg-rose-50/50 p-3 rounded-lg border border-rose-100">
+                        <p class="text-xs font-semibold text-rose-800 flex items-center gap-2">
+                            <i data-lucide="check-circle-2" class="w-3 h-3"></i> Classroom interaction balance
+                        </p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <section class="py-24 px-4 sm:px-6 lg:px-8 bg-white">
+        <div class="max-w-7xl mx-auto">
+            <div class="text-center mb-16">
+                <h2 class="text-4xl font-bold text-gray-900 mb-4">Meet the Builders</h2>
+                <p class="text-xl text-gray-600">Built by educators and technologists who care.</p>
+            </div>
+
+            <div class="grid md:grid-cols-2 lg:grid-cols-4 gap-8 max-w-5xl mx-auto">
+                <div class="group text-center">
+                    <div class="relative w-24 h-24 mx-auto mb-6">
+                        <div class="absolute inset-0 bg-gradient-to-r from-teal-400 to-blue-500 rounded-full blur opacity-25 group-hover:opacity-50 transition duration-300"></div>
+                        <div class="relative w-full h-full bg-gradient-to-br from-gray-100 to-white rounded-full flex items-center justify-center border-2 border-white shadow-lg">
+                            <span class="text-3xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-teal-600 to-blue-600">V</span>
+                        </div>
+                    </div>
+                    <h3 class="text-lg font-bold text-gray-900">Vishwa</h3>
+                    <p class="text-teal-600 text-sm font-medium tracking-wide uppercase mt-1">Project Leader</p>
+                </div>
+
+                <div class="group text-center">
+                    <div class="relative w-24 h-24 mx-auto mb-6">
+                        <div class="absolute inset-0 bg-gradient-to-r from-teal-400 to-blue-500 rounded-full blur opacity-25 group-hover:opacity-50 transition duration-300"></div>
+                        <div class="relative w-full h-full bg-gradient-to-br from-gray-100 to-white rounded-full flex items-center justify-center border-2 border-white shadow-lg">
+                            <span class="text-3xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-teal-600 to-blue-600">S</span>
+                        </div>
+                    </div>
+                    <h3 class="text-lg font-bold text-gray-900">Shreya</h3>
+                    <p class="text-teal-600 text-sm font-medium tracking-wide uppercase mt-1">AI Leader</p>
+                </div>
+
+                <div class="group text-center">
+                    <div class="relative w-24 h-24 mx-auto mb-6">
+                        <div class="absolute inset-0 bg-gradient-to-r from-teal-400 to-blue-500 rounded-full blur opacity-25 group-hover:opacity-50 transition duration-300"></div>
+                        <div class="relative w-full h-full bg-gradient-to-br from-gray-100 to-white rounded-full flex items-center justify-center border-2 border-white shadow-lg">
+                            <span class="text-3xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-teal-600 to-blue-600">B</span>
+                        </div>
+                    </div>
+                    <h3 class="text-lg font-bold text-gray-900">Bhargavi</h3>
+                    <p class="text-teal-600 text-sm font-medium tracking-wide uppercase mt-1">Data Pipeline</p>
+                </div>
+
+                <div class="group text-center">
+                    <div class="relative w-24 h-24 mx-auto mb-6">
+                        <div class="absolute inset-0 bg-gradient-to-r from-teal-400 to-blue-500 rounded-full blur opacity-25 group-hover:opacity-50 transition duration-300"></div>
+                        <div class="relative w-full h-full bg-gradient-to-br from-gray-100 to-white rounded-full flex items-center justify-center border-2 border-white shadow-lg">
+                            <span class="text-3xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-teal-600 to-blue-600">V</span>
+                        </div>
+                    </div>
+                    <h3 class="text-lg font-bold text-gray-900">Vaishali</h3>
+                    <p class="text-teal-600 text-sm font-medium tracking-wide uppercase mt-1">UI/UX Leader</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <section class="py-20 px-4 sm:px-6 lg:px-8 bg-slate-900 text-white relative overflow-hidden">
+        <div class="absolute inset-0 bg-[url('https://grainy-gradients.vercel.app/noise.svg')] opacity-20"></div>
+        <div class="absolute top-0 right-0 w-96 h-96 bg-teal-500/20 rounded-full blur-3xl -translate-y-1/2 translate-x-1/2"></div>
+        
+        <div class="max-w-4xl mx-auto text-center relative z-10">
+            <h2 class="text-4xl md:text-5xl font-bold mb-6">Beyond Test Scores</h2>
+            <p class="text-xl text-slate-300 mb-10 max-w-2xl mx-auto leading-relaxed">
+                TIE helps teachers understand the nuances of their teaching beyond traditional metrics. We focus on clarity, engagement, delivery, and interaction.
+            </p>
+            <div class="flex flex-col sm:flex-row gap-4 justify-center">
+                <a href="#" class="inline-flex items-center justify-center gap-2 bg-gradient-to-r from-teal-500 to-blue-500 text-white px-8 py-4 rounded-xl text-lg font-semibold hover:brightness-110 transition shadow-lg shadow-teal-500/25">
+                    <i data-lucide="trending-up" class="w-5 h-5"></i>
+                    Start Growing Today
+                </a>
+                <a href="#" class="inline-flex items-center justify-center gap-2 bg-white/10 backdrop-blur-sm text-white px-8 py-4 rounded-xl text-lg font-semibold hover:bg-white/20 transition border border-white/20">
+                    Explore Features
+                </a>
+            </div>
+        </div>
+    </section>
+
+    <footer class="py-12 px-4 sm:px-6 lg:px-8 bg-white border-t border-gray-100">
+        <div class="max-w-7xl mx-auto flex flex-col md:flex-row justify-between items-center gap-6">
+            <div class="flex items-center gap-3">
+                <div class="bg-gray-900 p-2 rounded-lg">
+                    <i data-lucide="book-open" class="w-5 h-5 text-white"></i>
+                </div>
+                <span class="font-bold text-gray-900 text-lg">TIE Hacks</span>
+            </div>
+            <p class="text-gray-500 text-sm text-center md:text-left">
+                &copy; 2024 TIE Hacks. Empowering Every Teacher to Grow.
+            </p>
+            <div class="flex items-center gap-8">
+                <a href="#" class="text-gray-500 hover:text-teal-600 text-sm font-medium transition">Home</a>
+                <a href="#" class="text-gray-500 hover:text-teal-600 text-sm font-medium transition">Privacy</a>
+                <a href="#" class="text-gray-500 hover:text-teal-600 text-sm font-medium transition">Sign In</a>
+            </div>
+        </div>
+    </footer>
+
+    <script>
+        lucide.createIcons();
+    </script>
+</body>
+</html>

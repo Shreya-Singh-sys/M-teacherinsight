@@ -265,6 +265,11 @@ class CoachRequest(BaseModel):
 async def read_root():
     return FileResponse("index.html")
 
+# 2. DASHBOARD ROUTE -> Show Dashboard
+@app.get("/dashboard")
+async def read_dashboard():
+    return FileResponse("dashboard.html")
+
 @app.post("/coach")
 async def coach_endpoint(req: CoachRequest):
     query = req.user_query.lower()
@@ -313,6 +318,12 @@ async def get_latest_session():
     
     # Return the most recent entry (Last item in the list)
     return history[-1]
+# --- ADD THIS TO main.py ---
+@app.get("/api/history")
+async def get_full_history():
+    history = get_history_data()
+    # Reverse list so newest shows first
+    return history[::-1]
 
 @app.post("/analyze")
 async def analyze_endpoint(file: UploadFile = File(...)):
@@ -379,3 +390,117 @@ async def pdf_endpoint(data: dict):
     path = "TIE_Report.pdf"
     pdf_engine.generate_report(data, path)
     return FileResponse(path, filename="TIE_Analysis.pdf")
+# --- SETTINGS CONFIGURATION ---
+CONFIG_FILE = "user_config.json"
+
+# Default Settings (if file doesn't exist)
+DEFAULT_CONFIG = {
+    "name": "Sarah Jenkins",
+    "email": "sarah.jenkins@school.edu",
+    "theme": "light",
+    "notifications": {"email": True, "weekly": True}
+}
+
+def get_user_config():
+    if not os.path.exists(CONFIG_FILE):
+        return DEFAULT_CONFIG
+    try:
+        with open(CONFIG_FILE, "r") as f:
+            return json.load(f)
+    except:
+        return DEFAULT_CONFIG
+
+def save_user_config(data):
+    with open(CONFIG_FILE, "w") as f:
+        json.dump(data, f, indent=4)
+
+# --- API: GET SETTINGS ---
+@app.get("/api/settings")
+async def get_settings_endpoint():
+    return get_user_config()
+
+# --- API: UPDATE SETTINGS ---
+class SettingsModel(BaseModel):
+    name: str
+    email: str
+    theme: str
+
+@app.post("/api/settings/update")
+async def update_settings_endpoint(config: SettingsModel):
+    current = get_user_config()
+    # Update fields
+    current["name"] = config.name
+    current["email"] = config.email
+    current["theme"] = config.theme
+    
+    save_user_config(current)
+    return {"status": "success", "message": "Settings updated!", "data": current}
+# ... (Keep all your existing imports) ...
+
+# --- USER AUTHENTICATION SYSTEM ---
+USERS_FILE = "users.json"
+
+# Helper to load users
+def get_users():
+    if not os.path.exists(USERS_FILE):
+        return {}
+    try:
+        with open(USERS_FILE, "r") as f:
+            return json.load(f)
+    except:
+        return {}
+
+# Helper to save users
+def save_users(data):
+    with open(USERS_FILE, "w") as f:
+        json.dump(data, f, indent=4)
+
+# Models
+class RegisterModel(BaseModel):
+    name: str
+    email: str
+    password: str
+
+class LoginModel(BaseModel):
+    email: str
+    password: str
+
+# 1. REGISTER API
+@app.post("/api/register")
+async def register_endpoint(user: RegisterModel):
+    users = get_users()
+    
+    if user.email in users:
+        return {"status": "error", "message": "Email already exists!"}
+    
+    # Save new user
+    users[user.email] = {
+        "name": user.name,
+        "email": user.email,
+        "password": user.password, # Note: In a real app, hash this!
+        "joined": datetime.now().strftime("%Y-%m-%d")
+    }
+    save_users(users)
+    return {"status": "success", "message": "Account created!"}
+
+# 2. LOGIN API
+@app.post("/api/login")
+async def login_endpoint(creds: LoginModel):
+    users = get_users()
+    
+    if creds.email not in users:
+        return {"status": "error", "message": "User not found"}
+    
+    stored_user = users[creds.email]
+    
+    if stored_user["password"] != creds.password:
+        return {"status": "error", "message": "Incorrect password"}
+    
+    # Return user info (excluding password)
+    return {
+        "status": "success",
+        "user": {
+            "name": stored_user["name"],
+            "email": stored_user["email"]
+        }
+    }
