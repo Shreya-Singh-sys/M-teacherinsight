@@ -2,8 +2,8 @@
 
 **TIE (Teacher Insight Engine)** is an AI-powered dashboard designed to help teachers improve their classroom delivery. By analyzing video and audio from class sessions, TIE provides data-driven feedback on clarity, engagement, energy levels, and vocal modulation.
 
-![Dashboard Preview](https://via.placeholder.com/800x400?text=TIE+Hacks+Dashboard+Preview)
-*(Replace this link with a screenshot of your actual dashboard)*
+
+
 
 ## 🚀 Features
 
@@ -36,7 +36,7 @@ Clone the repository:
 
 Bash
 
-git clone [https://github.com/yourusername/tie-hacks.git](https://github.com/yourusername/tie-hacks.git)
+git clone https://github.com/bhargavibhadani-gif/TIE_SQUAD_
 cd tie-hacks
 Create a virtual environment (optional but recommended):
 
