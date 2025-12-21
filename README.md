@@ -37,6 +37,7 @@ Clone the repository:
 Bash
 
 git clone https://github.com/bhargavibhadani-gif/TIE_SQUAD_
+
 cd tie-hacks
 Create a virtual environment (optional but recommended):
 
