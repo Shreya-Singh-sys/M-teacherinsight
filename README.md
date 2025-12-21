@@ -25,26 +25,7 @@
 * **AI/Processing:** `ffmpeg` (Media processing), Custom Python Engines (`content`, `vocal`, `interaction`, `video`)
 * **Data Storage:** JSON (File-based storage for demo purposes)
 
-## 📂 Project Structure
-
-```bash
-TIE_New/
-├── main.py                 # FastAPI Backend & API Routes
-├── users.json              # User credentials storage
-├── session_history.json    # Analysis data storage
-├── user_config.json        # User settings (theme, profile)
-├── requirements.txt        # Python dependencies
-├── input/                  # Temp folder for uploaded videos
-└── frontend/               # Frontend UI
-    ├── index.html          # Landing Page
-    ├── login.html          # Login Page
-    ├── register.html       # Sign-up Page
-    ├── dashboard.html      # Main Dashboard
-    ├── performance.html    # Detailed Analysis View
-    ├── Session.html        # History/List View
-    └── settings.html       # User Settings
-
-⚡ Getting Started
+  ⚡ Getting Started
 Prerequisites
 Python 3.8+ installed.
 
@@ -98,5 +79,26 @@ PDF Report generation improvements.
 
 More advanced emotion recognition models.
 
-🤝 Contributing
-Contributions are welcome! Please fork this repository and submit a pull request for any features or bug fixes.
+
+## 📂 Project Structure
+
+```bash
+TIE_New/
+├── main.py                 # FastAPI Backend & API Routes
+├── users.json              # User credentials storage
+├── session_history.json    # Analysis data storage
+├── user_config.json        # User settings (theme, profile)
+├── requirements.txt        # Python dependencies
+├── input/                  # Temp folder for uploaded videos
+└── frontend/               # Frontend UI
+    ├── index.html          # Landing Page
+    ├── login.html          # Login Page
+    ├── register.html       # Sign-up Page
+    ├── dashboard.html      # Main Dashboard
+    ├── performance.html    # Detailed Analysis View
+    ├── Session.html        # History/List View
+    └── settings.html       # User Settings
+
+
+
+
