@@ -25,16 +25,16 @@
 * **AI/Processing:** `ffmpeg` (Media processing), Custom Python Engines (`content`, `vocal`, `interaction`, `video`)
 * **Data Storage:** JSON (File-based storage for demo purposes)
 
-  ⚡ Getting Started
-Prerequisites
+##⚡ Getting Started
+#Prerequisites
 Python 3.8+ installed.
 
 FFmpeg installed and added to your system PATH (required for video processing).
 
-Installation
+#Installation
 Clone the repository:
 
-Bash
+#Bash
 
 git clone https://github.com/bhargavibhadani-gif/TIE_SQUAD_
 
@@ -42,7 +42,7 @@ cd tie-hacks
 
 Create a virtual environment (optional but recommended):
 
-Bash
+#Bash
 
 python -m venv venv
 # Windows
@@ -51,35 +51,35 @@ venv\Scripts\activate
 source venv/bin/activate
 Install dependencies:
 
-Bash
+#Bash
 
 pip install -r requirements.txt
 Run the Server:
 
-Bash
+#Bash
 
 uvicorn main:app --reload
 Open in Browser: Go to http://127.0.0.1:8000 to see the Landing Page.
 
-📝 Usage Guide
-Sign Up: Create a new account on the Register page.
+##📝 Usage Guide
+* **Sign Up:** Create a new account on the Register page.
 
-Dashboard: Log in to view your main stats.
+* **Dashboard:** Log in to view your main stats.
 
-Analyze: Upload a video file (.mp4) via the dashboard. Wait for the AI engines to process the content.
+* **Analyze:** Upload a video file (.mp4) via the dashboard. Wait for the AI engines to process the content.
 
-Review: Click "Performance Overview" to see detailed graphs and the AI Coach's advice.
+* **Review:** Click "Performance Overview" to see detailed graphs and the AI Coach's advice.
 
-History: Check "Class Sessions" to see a list of all your past uploads.
+* **History:** Check "Class Sessions" to see a list of all your past uploads.
 
-🔮 Future Improvements
+##🔮 Future Improvements
 Integration with MongoDB for robust database management.
 
-Real-time live streaming analysis.
+* Real-time live streaming analysis.
 
-PDF Report generation improvements.
+* PDF Report generation improvements.
 
-More advanced emotion recognition models.
+* More advanced emotion recognition models.
 
 
 ## 📂 Project Structure
