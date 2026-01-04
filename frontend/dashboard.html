@@ -670,6 +670,16 @@
     function handleEnter(e) { if (e.key === "Enter") askCoach(); }
     document.getElementById('analyzeBtn').addEventListener('click', uploadAndAnalyze);
   </script> 
+  <script>
+  document.addEventListener("DOMContentLoaded", () => {
+    document.querySelectorAll("h3").forEach(el => {
+      if (el.innerText.trim() === "Sarah Jenkins") {
+        el.innerText = "Vishwa";
+      }
+    });
+  });
+</script>
+
 
 </body>
 </html>
