@@ -1,0 +1,23 @@
+# Environment variables
+.env
+
+# Media files
+*.mp4
+*.mov
+*.avi
+*.wav
+
+# Local JSON data
+session_history.json
+users.json
+
+# Test / temp files
+video_test.py
+mongo_test.py
+
+# Python
+__pycache__/
+*.pyc
+
+# Node
+node_modules/
