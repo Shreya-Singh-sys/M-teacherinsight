@@ -1,24 +1,43 @@
 import whisper
 
 class ContentEngine:
+    """
+    Content / Speech Analysis Engine
+    --------------------------------
+    Current: OpenAI Whisper (local, English-only, fast)
+    Azure-ready: Can be upgraded to Azure Speech Service
+    """
+
     def __init__(self):
         print("🎧 Loading Audio AI (Tiny)...")
-        # English only model is 2x faster
+        # English-only model is ~2x faster and sufficient for prototype
         self.whisper_model = whisper.load_model("tiny.en")
 
     def transcribe(self, audio_path):
-        # 1. Transcribe
+        """
+        Transcribes audio and evaluates speaking clarity & pace.
+        Used inside async pipeline (FastAPI).
+        """
+        # 1. Transcribe audio
         result = self.whisper_model.transcribe(audio_path)
-        text = result["text"]
-        
+        text = result.get("text", "").strip()
+
+        if not text:
+            return {
+                "transcript_preview": "",
+                "wpm": 0,
+                "clarity_score": 0,
+                "feedback": "No speech detected in the audio sample."
+            }
+
         # 2. Calculate WPM (Words Per Minute)
-        # We assume the clip is approx 45 seconds long
+        # Assumption: analysis clip ≈ 45 seconds
         word_count = len(text.split())
-        wpm = int(word_count / 0.75) 
-        
-        # 3. Generate Detailed 3-4 Line Feedback
+        wpm = int(word_count / 0.75)
+
+        # 3. Generate detailed pedagogical feedback
         feedback = self._generate_detailed_feedback(wpm)
-        
+
         return {
             "transcript_preview": text[:100] + "...",
             "wpm": wpm,
@@ -27,13 +46,21 @@ class ContentEngine:
         }
 
     def _calculate_score(self, wpm):
-        # Ideal WPM is around 130-150. Drops if too fast or too slow.
-        if 120 <= wpm <= 160: return 95
-        if 100 <= wpm < 120: return 85
-        if wpm > 160: return 80
+        """
+        Ideal teaching pace: 130–150 WPM
+        """
+        if 120 <= wpm <= 160:
+            return 95
+        if 100 <= wpm < 120:
+            return 85
+        if wpm > 160:
+            return 80
         return 60
 
     def _generate_detailed_feedback(self, wpm):
+        """
+        Generates human-readable teaching feedback (3–4 lines).
+        """
         if wpm < 100:
             return (
                 f"Your speaking pace is quite slow ({wpm} WPM), which might cause student disengagement during longer explanations. "
@@ -55,7 +82,7 @@ class ContentEngine:
                 "The flow of information is efficient without feeling rushed. "
                 "Maintain this energy, as it demonstrates confidence and mastery of the material."
             )
-        else: # > 160
+        else:  # >160
             return (
                 f"You are speaking quite fast ({wpm} WPM). While this shows passion, some students might fall behind. "
                 "Try to deliberately slow down when introducing new terminology or complex formulas. "
