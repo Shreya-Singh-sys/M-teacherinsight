@@ -1,4 +1,4 @@
-# M-TeacherInsight – AI Teaching Assistant (Microsoft Azure Aligned)
+# TeacherInsight – AI Teaching Assistant (Microsoft Azure Aligned)
 
 M-TeacherInsight is an AI-powered teaching insight platform designed to help educators
 analyze classroom delivery, engagement, clarity, and interaction using speech, video,
